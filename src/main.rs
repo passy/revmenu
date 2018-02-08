@@ -1,8 +1,11 @@
 extern crate console;
 extern crate exitcode;
+#[macro_use]
 extern crate failure;
 #[macro_use]
 extern crate clap;
+#[macro_use]
+extern crate nom;
 
 use std::io::{stderr, stdin, Write, Read, BufReader, BufRead};
 use std::fs::File;
@@ -10,6 +13,7 @@ use std::process::{exit};
 use failure::{Error, err_msg};
 
 mod cli;
+mod parser;
 
 fn main() {
     match run() {
@@ -35,9 +39,9 @@ fn run() -> Result<exitcode::ExitCode, Error> {
     };
 
     for line in reader.lines() {
-        if let Ok(l) = line {
-            println!("{}", l);
-        }
+        let res = line.map(|l| parser::parse(l.as_bytes()));
+        println!("res: {:?}", res);
+
     }
 
     Ok(exitcode::OK)
