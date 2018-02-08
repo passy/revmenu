@@ -1,6 +1,10 @@
 [package]
+authors = ["Pascal Hartig <phartig@rdrei.net>"]
 name = "revmenu"
 version = "0.1.0"
-authors = ["Pascal Hartig <phartig@rdrei.net>"]
-
 [dependencies]
+clap = "2.29.4"
+console = "0.6.1"
+exitcode = "1.1.2"
+failure = "0.1.1"
+nom = "3.2.1"
