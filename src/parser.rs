@@ -45,11 +45,8 @@ fn from_hash<'a>(input: &'a str) -> Result<&'a str, String> {
 
 pub fn parse(l: &[u8]) -> Result<Vec<Option<RefLike>>, Error> {
     match entries(l) {
-        IResult::Done(_, v) => {
-            Ok(v)
-        }
-        IResult::Error(e) =>
-            Err(format_err!("{}", e)),
+        IResult::Done(_, v) => Ok(v),
+        IResult::Error(e) => Err(format_err!("{}", e)),
         IResult::Incomplete(_) => Err(err_msg("Not enough data")),
     }
 }
