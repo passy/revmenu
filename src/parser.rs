@@ -31,6 +31,7 @@ named!(
 
 named!(
     entries<Vec<Option<RefLike>>>,
+    // TODO: Fold this into a Vec<RefLike> instead.
     many1!(line)
 );
 
