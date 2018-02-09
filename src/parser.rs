@@ -11,7 +11,6 @@ named!(
     reflike<RefLike>,
     do_parse!(
         hex: map_res!(map_res!(hex_digit, from_utf8), from_hash) >>
-        space: many1!(space) >>
         (
             RefLike {
                 hash: hex.trim().to_owned(),
@@ -25,15 +24,14 @@ named!(
     do_parse!(
         s0: many0!(space) >>
         c: opt!(reflike) >>
+        s1: take_until!(" ") >>
         (c)
     )
 );
 
 named!(
     entries<Vec<Option<RefLike>>>,
-    do_parse!(
-        entries: many1!(line) >> (entries)
-    )
+    many1!(line)
 );
 
 fn from_hash<'a>(input: &'a str) -> Result<&'a str, String> {
