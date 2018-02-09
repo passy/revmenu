@@ -1,4 +1,4 @@
-use clap::{App, AppSettings, Arg, SubCommand};
+use clap::{App, AppSettings, Arg};
 
 static ABOUT: &'static str =
     "A tool for finding and selecting VCS revision hashes in your terminal.";

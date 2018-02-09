@@ -34,12 +34,12 @@ named!(
     many1!(line)
 );
 
-fn from_hash<'a>(input: &'a str) -> Result<&'a str, String> {
+fn from_hash(input: &str) -> Result<&str, String> {
     println!("input: {}", input);
     if input.len() >= 6 {
         Ok(input)
     } else {
-        Err(format!("Doesn't look like a hash"))
+        Err("Doesn't look like a hash".into())
     }
 }
 
