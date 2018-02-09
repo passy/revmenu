@@ -30,9 +30,13 @@ named!(
 );
 
 named!(
-    entries<Vec<Option<RefLike>>>,
-    // TODO: Fold this into a Vec<RefLike> instead.
-    many1!(line)
+    entries<Vec<RefLike>>,
+    fold_many1!(line, Vec::default(), |mut acc: Vec<RefLike>, i| {
+        match i {
+            Some(l) => { acc.push(l); acc },
+            None => acc
+        }
+    })
 );
 
 fn from_hash(input: &str) -> Result<&str, String> {
@@ -44,7 +48,7 @@ fn from_hash(input: &str) -> Result<&str, String> {
     }
 }
 
-pub fn parse(l: &[u8]) -> Result<Vec<Option<RefLike>>, Error> {
+pub fn parse(l: &[u8]) -> Result<Vec<RefLike>, Error> {
     match entries(l) {
         IResult::Done(_, v) => Ok(v),
         IResult::Error(e) => Err(format_err!("{}", e)),
