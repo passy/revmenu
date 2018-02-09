@@ -1,4 +1,4 @@
-use nom::{digit, hex_digit, rest, space, anychar, newline, IResult};
+use nom::{hex_digit, space, IResult};
 use std::str::from_utf8;
 use failure::{err_msg, Error};
 
@@ -24,7 +24,7 @@ named!(
     do_parse!(
         s0: many0!(space) >>
         c: opt!(reflike) >>
-        s1: take_until!(" ") >>
+        s1: take_until_and_consume!(" ") >>
         (c)
     )
 );

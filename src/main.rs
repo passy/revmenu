@@ -7,7 +7,7 @@ extern crate clap;
 #[macro_use]
 extern crate nom;
 
-use std::io::{stderr, stdin, Write, Read, BufReader, BufRead};
+use std::io::{stderr, stdin, Write, BufReader, BufRead};
 use std::fs::File;
 use std::process::{exit};
 use failure::{Error, err_msg};
