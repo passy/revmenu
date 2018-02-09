@@ -21,9 +21,12 @@ named!(
 );
 
 named!(
-    line<RefLike>,
-    alt!(
-        reflike | map_opt!(many0!(anychar), |_| None)
+    line<Option<RefLike>>,
+    do_parse!(
+        s0: many0!(space) >>
+        c: opt!(reflike) >>
+        s1: many1!(space) >>
+        (c)
     )
 );
 
