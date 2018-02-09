@@ -1,4 +1,4 @@
-use nom::{digit, hex_digit, rest, space, anychar, IResult};
+use nom::{digit, hex_digit, rest, space, anychar, newline, IResult};
 use std::str::from_utf8;
 use failure::{err_msg, Error};
 
@@ -10,11 +10,11 @@ pub struct RefLike {
 named!(
     reflike<RefLike>,
     do_parse!(
-        hex: map_res!(hex_digit, from_utf8) >>
-        hash: expr_opt!(maybe_hash(hex)) >>
+        hex: map_res!(map_res!(hex_digit, from_utf8), from_hash) >>
+        space: many1!(space) >>
         (
             RefLike {
-                hash: hash.trim().to_owned(),
+                hash: hex.trim().to_owned(),
             }
         )
     )
@@ -25,21 +25,28 @@ named!(
     do_parse!(
         s0: many0!(space) >>
         c: opt!(reflike) >>
-        s1: many1!(space) >>
         (c)
     )
 );
 
-fn maybe_hash<'a>(input: &'a str) -> Option<&'a str> {
+named!(
+    entries<Vec<Option<RefLike>>>,
+    do_parse!(
+        entries: many1!(line) >> (entries)
+    )
+);
+
+fn from_hash<'a>(input: &'a str) -> Result<&'a str, String> {
+    println!("input: {}", input);
     if input.len() >= 6 {
-        Some(input)
+        Ok(input)
     } else {
-        None
+        Err(format!("Doesn't look like a hash"))
     }
 }
 
-pub fn parse(l: &[u8]) -> Result<RefLike, Error> {
-    match reflike(l) {
+pub fn parse(l: &[u8]) -> Result<Vec<Option<RefLike>>, Error> {
+    match entries(l) {
         IResult::Done(_, v) => {
             Ok(v)
         }
