@@ -40,8 +40,8 @@ named!(
 );
 
 fn from_hash(input: &str) -> Result<&str, String> {
-    println!("input: {}", input);
     if input.len() >= 6 {
+        println!("input: {}", input);
         Ok(input)
     } else {
         Err("Doesn't look like a hash".into())
@@ -52,6 +52,6 @@ pub fn parse(l: &[u8]) -> Result<Vec<RefLike>, Error> {
     match entries(l) {
         IResult::Done(_, v) => Ok(v),
         IResult::Error(e) => Err(format_err!("{}", e)),
-        IResult::Incomplete(_) => Err(err_msg("Not enough data")),
+        IResult::Incomplete(i) => Err(format_err!("Not enough data: {:?}", i)),
     }
 }
