@@ -40,7 +40,7 @@ fn run() -> Result<exitcode::ExitCode, Error> {
     };
 
     for line in reader.lines() {
-        let res = line.map(|l| parser::parse(l.as_bytes()));
+        let res = line.map_err(|e| e.into()).and_then(|l| parser::parse(l.as_bytes()));
         println!("res: {:?}", res);
     }
 

@@ -1,6 +1,6 @@
 use nom::{hex_digit, space, IResult};
 use std::str::from_utf8;
-use failure::{err_msg, Error};
+use failure::{Error};
 
 #[derive(Debug)]
 pub struct RefLike {
@@ -19,12 +19,16 @@ named!(
     )
 );
 
+fn is_not_space(c: u8) -> bool {
+    c != b' ' && c != b'\n' && c != b'\t'
+}
+
 named!(
     line<Option<RefLike>>,
     do_parse!(
-        s0: many0!(space) >>
+        many0!(space) >>
         c: opt!(reflike) >>
-        s1: take_until_and_consume!(" ") >>
+        take_while!(is_not_space) >>
         (c)
     )
 );
@@ -41,7 +45,6 @@ named!(
 
 fn from_hash(input: &str) -> Result<&str, String> {
     if input.len() >= 6 {
-        println!("input: {}", input);
         Ok(input)
     } else {
         Err("Doesn't look like a hash".into())
