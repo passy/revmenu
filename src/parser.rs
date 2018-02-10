@@ -31,7 +31,7 @@ named!(
 
 named!(
     entries<Vec<RefLike>>,
-    fold_many1!(line, Vec::default(), |mut acc: Vec<RefLike>, i| {
+    fold_many1!(complete!(line), Vec::default(), |mut acc: Vec<RefLike>, i| {
         match i {
             Some(l) => { acc.push(l); acc },
             None => acc
