@@ -39,9 +39,14 @@ fn run() -> Result<exitcode::ExitCode, Error> {
         Box::new(BufReader::new(file))
     };
 
-    let hashes = reader.lines().filter_map(|line| {
-        line.map_err(|e| e.into()).and_then(|l| parser::parse(l.as_bytes())).ok()
-    }).flat_map(|a| a);
+    let hashes = reader
+        .lines()
+        .filter_map(|line| {
+            line.map_err(|e| e.into())
+                .and_then(|l| parser::parse(l.as_bytes()))
+                .ok()
+        })
+        .flat_map(|a| a);
 
     println!("Found the following hashes: ");
     for h in hashes {

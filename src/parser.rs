@@ -1,6 +1,6 @@
 use nom::{hex_digit, space, IResult};
 use std::str::from_utf8;
-use failure::{Error};
+use failure::Error;
 
 #[derive(Debug)]
 pub struct RefLike {
@@ -10,12 +10,9 @@ pub struct RefLike {
 named!(
     reflike<RefLike>,
     do_parse!(
-        hex: map_res!(map_res!(hex_digit, from_utf8), from_hash) >>
-        (
-            RefLike {
-                hash: hex.trim().to_owned(),
-            }
-        )
+        hex: map_res!(map_res!(hex_digit, from_utf8), from_hash) >> (RefLike {
+            hash: hex.trim().to_owned(),
+        })
     )
 );
 
@@ -25,22 +22,22 @@ fn is_not_space(c: u8) -> bool {
 
 named!(
     line<Option<RefLike>>,
-    do_parse!(
-        many0!(space) >>
-        c: opt!(reflike) >>
-        take_while!(is_not_space) >>
-        (c)
-    )
+    do_parse!(many0!(space) >> c: opt!(reflike) >> take_while!(is_not_space) >> (c))
 );
 
 named!(
     entries<Vec<RefLike>>,
-    fold_many1!(complete!(line), Vec::default(), |mut acc: Vec<RefLike>, i| {
-        match i {
-            Some(l) => { acc.push(l); acc },
-            None => acc
+    fold_many1!(
+        complete!(line),
+        Vec::default(),
+        |mut acc: Vec<RefLike>, i| match i {
+            Some(l) => {
+                acc.push(l);
+                acc
+            }
+            None => acc,
         }
-    })
+    )
 );
 
 fn from_hash(input: &str) -> Result<&str, String> {
