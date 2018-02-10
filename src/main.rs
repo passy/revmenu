@@ -6,11 +6,13 @@ extern crate exitcode;
 extern crate failure;
 #[macro_use]
 extern crate nom;
+extern crate dialoguer;
 
 use std::io::{stderr, stdin, BufRead, BufReader, Write};
 use std::fs::File;
 use std::process::exit;
 use failure::{err_msg, Error};
+use dialoguer::Select;
 
 mod cli;
 mod parser;
@@ -39,7 +41,7 @@ fn run() -> Result<exitcode::ExitCode, Error> {
         Box::new(BufReader::new(file))
     };
 
-    let hashes = reader
+    let revs = reader
         .lines()
         .filter_map(|line| {
             line.map_err(|e| e.into())
@@ -48,10 +50,14 @@ fn run() -> Result<exitcode::ExitCode, Error> {
         })
         .flat_map(|a| a);
 
-    println!("Found the following hashes: ");
-    for h in hashes {
-        println!("{}", h.hash);
-    }
+    let hashes: Vec<String> = revs.map(|r| r.hash).collect();
+    let select = Select::new()
+        .default(0)
+        .items(&hashes.as_slice())
+        .interact()
+        .unwrap();
+
+    println!("Selected hash: {:?}", select);
 
     Ok(exitcode::OK)
 }
