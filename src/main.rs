@@ -16,6 +16,7 @@ use dialoguer::Select;
 
 mod cli;
 mod parser;
+mod vcs;
 
 fn main() {
     match run() {
@@ -41,6 +42,9 @@ fn run() -> Result<exitcode::ExitCode, Error> {
         Box::new(BufReader::new(file))
     };
 
+    let cwd = std::env::current_dir()?;
+    let vcs_ = vcs::detect_vcs(&cwd)?;
+
     let revs = reader
         .lines()
         .filter_map(|line| {
@@ -51,13 +55,16 @@ fn run() -> Result<exitcode::ExitCode, Error> {
         .flat_map(|a| a);
 
     let hashes: Vec<String> = revs.map(|r| r.hash).collect();
-    let select = Select::new()
+    let selection = Select::new()
         .default(0)
         .items(&hashes.as_slice())
         .interact()
         .unwrap();
 
-    println!("Selected hash: {:?}", select);
+    let selected_hash = &hashes[selection];
+    println!("Checking out hash: {:?}", selected_hash);
+
+    vcs_.checkout(selected_hash)?;
 
     Ok(exitcode::OK)
 }
