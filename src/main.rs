@@ -61,10 +61,12 @@ fn run() -> Result<exitcode::ExitCode, Error> {
         .interact()
         .unwrap();
 
-    let selected_hash = &hashes[selection];
-    println!("Checking out hash: {:?}", selected_hash);
+    let selected_hash = &hashes.get(selection);
 
-    vcs_.checkout(selected_hash)?;
+    if let &Some(h) = selected_hash {
+        println!("Checking out hash: {:?}", h);
+        vcs_.checkout(h)?;
+    }
 
     Ok(exitcode::OK)
 }
