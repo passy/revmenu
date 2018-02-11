@@ -14,7 +14,6 @@ impl Hg {
     /// on the passed in root. Will succeed if the given
     /// root contains a root that contains a `.hg` directory.
     pub fn new(root: &Path) -> Option<Box<VCS>> {
-        println!("Checking for hg in {:?}", root);
         if root.join(".hg").exists() {
             Some(Box::new(Hg {root: root.to_path_buf()}))
         } else {

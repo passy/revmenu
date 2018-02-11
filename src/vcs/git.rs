@@ -14,7 +14,6 @@ impl Git {
     /// on the passed in root. Will succeed if the given
     /// root contains a root that contains a `.git` directory.
     pub fn new(root: &Path) -> Option<Box<VCS>> {
-        println!("Checking for git in {:?}", root);
         if root.join(".git").exists() {
             Some(Box::new(Git {root: root.to_path_buf()}))
         } else {
