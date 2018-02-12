@@ -64,7 +64,7 @@ fn run() -> Result<exitcode::ExitCode, Error> {
     let selected_hash = &hashes.get(selection);
 
     if let &Some(h) = selected_hash {
-        println!("Checking out hash: {:?}", h);
+        println!("Checking out {} revision: {}", vcs_.name(), h);
         vcs_.checkout(h)?;
     }
 
