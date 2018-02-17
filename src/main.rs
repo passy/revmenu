@@ -1,12 +1,12 @@
 #[macro_use]
 extern crate clap;
 extern crate console;
+extern crate dialoguer;
 extern crate exitcode;
 #[macro_use]
 extern crate failure;
 #[macro_use]
 extern crate nom;
-extern crate dialoguer;
 
 use std::io::{stderr, stdin, BufRead, BufReader, Write};
 use std::fs::File;

@@ -15,7 +15,9 @@ impl Hg {
     /// root contains a root that contains a `.hg` directory.
     pub fn new(root: &Path) -> Option<Box<VCS>> {
         if root.join(".hg").exists() {
-            Some(Box::new(Hg {root: root.to_path_buf()}))
+            Some(Box::new(Hg {
+                root: root.to_path_buf(),
+            }))
         } else {
             None
         }

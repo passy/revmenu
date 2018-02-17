@@ -15,7 +15,9 @@ impl Git {
     /// root contains a root that contains a `.git` directory.
     pub fn new(root: &Path) -> Option<Box<VCS>> {
         if root.join(".git").exists() {
-            Some(Box::new(Git {root: root.to_path_buf()}))
+            Some(Box::new(Git {
+                root: root.to_path_buf(),
+            }))
         } else {
             None
         }
