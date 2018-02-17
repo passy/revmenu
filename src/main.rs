@@ -55,6 +55,11 @@ fn run() -> Result<exitcode::ExitCode, Error> {
         .flat_map(|a| a);
 
     let hashes: Vec<String> = revs.map(|r| r.hash).collect();
+
+    if hashes.len() == 0 {
+        return Ok(exitcode::OK);
+    }
+
     let selection = Select::new()
         .default(0)
         .items(&hashes.as_slice())
