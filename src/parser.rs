@@ -32,7 +32,7 @@ named!(
 named!(
     entries<CompleteStr, Vec<RefLike>>,
     fold_many1!(
-        complete!(hash),
+        hash,
         Vec::default(),
         |mut acc: Vec<RefLike>, i| match i {
             Some(l) => {
@@ -81,7 +81,7 @@ mod tests {
         assert_eq!(
             super::hash(CompleteStr("deadbeef")),
             Ok((CompleteStr(""), Some(super::RefLike { hash: "deadbeef".to_string() }))));
-        // Obviously not what we actually want.
+        // Obviously not what we actually want, but a good point of reference for future work.
         assert_eq!(
             super::hash(CompleteStr("hello deadbeef")),
             Ok((CompleteStr(" deadbeef"), None))
