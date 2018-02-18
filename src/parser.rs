@@ -1,4 +1,4 @@
-use nom::{hex_digit, space, IResult};
+use nom::{hex_digit, space, Err};
 use std::str::from_utf8;
 use failure::Error;
 
@@ -50,26 +50,24 @@ fn from_hash(input: &str) -> Result<&str, String> {
 
 pub fn parse(l: &[u8]) -> Result<Vec<RefLike>, Error> {
     match entries(l) {
-        IResult::Done(_, v) => Ok(v),
-        IResult::Error(e) => Err(format_err!("{}", e)),
-        IResult::Incomplete(i) => Err(format_err!("Not enough data: {:?}", i)),
+        Ok((_remaining, value)) => { Ok(value) },
+        Err(Err::Incomplete(needed)) => { bail!("Incomplete, needed: {:?}", needed) },
+        Err(Err::Error(e)) | Err(Err::Failure(e)) => { bail!("Parsing failure: {:?}", e) },
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use nom::IResult::Done;
-
     #[test]
     fn test_reflike() {
-        assert_eq!(super::reflike(&b"deadbeef"[..]), Done(&b""[..], super::RefLike { hash: "deadbeef".to_string() }));
-        assert_eq!(super::reflike(&b"deadberg"[..]), Done(&b"rg"[..], super::RefLike { hash: "deadbe".to_string() }));
+        assert_eq!(super::reflike(&b"deadbeef"[..]), Ok((&b""[..], super::RefLike { hash: "deadbeef".to_string() })));
+        assert_eq!(super::reflike(&b"deadberg"[..]), Ok((&b"rg"[..], super::RefLike { hash: "deadbe".to_string() })));
     }
 
     #[test]
     fn test_hashes() {
-        assert_eq!(super::hash(&b"deadbeef"[..]), Done(&b""[..], Some(super::RefLike { hash: "deadbeef".to_string() })));
+        assert_eq!(super::hash(&b"deadbeef"[..]), Ok((&b""[..], Some(super::RefLike { hash: "deadbeef".to_string() }))));
         // Obviously not what we actually want.
-        assert_eq!(super::hash(&b"hello deadbeef"[..]), Done(&b" deadbeef"[..], None));
+        // assert_eq!(super::hash(&b"hello deadbeef"[..]), Ok((&b" deadbeef"[..], None)));
     }
 }
