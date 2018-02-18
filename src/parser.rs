@@ -2,7 +2,7 @@ use nom::{hex_digit, space, IResult};
 use std::str::from_utf8;
 use failure::Error;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct RefLike {
     pub hash: String,
 }
@@ -21,14 +21,14 @@ fn is_not_space(c: u8) -> bool {
 }
 
 named!(
-    line<Option<RefLike>>,
+    hash<Option<RefLike>>,
     do_parse!(many0!(space) >> c: opt!(reflike) >> take_while!(is_not_space) >> (c))
 );
 
 named!(
     entries<Vec<RefLike>>,
     fold_many1!(
-        complete!(line),
+        complete!(hash),
         Vec::default(),
         |mut acc: Vec<RefLike>, i| match i {
             Some(l) => {
@@ -53,5 +53,23 @@ pub fn parse(l: &[u8]) -> Result<Vec<RefLike>, Error> {
         IResult::Done(_, v) => Ok(v),
         IResult::Error(e) => Err(format_err!("{}", e)),
         IResult::Incomplete(i) => Err(format_err!("Not enough data: {:?}", i)),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use nom::IResult::Done;
+
+    #[test]
+    fn test_reflike() {
+        assert_eq!(super::reflike(&b"deadbeef"[..]), Done(&b""[..], super::RefLike { hash: "deadbeef".to_string() }));
+        assert_eq!(super::reflike(&b"deadberg"[..]), Done(&b"rg"[..], super::RefLike { hash: "deadbe".to_string() }));
+    }
+
+    #[test]
+    fn test_hashes() {
+        assert_eq!(super::hash(&b"deadbeef"[..]), Done(&b""[..], Some(super::RefLike { hash: "deadbeef".to_string() })));
+        // Obviously not what we actually want.
+        assert_eq!(super::hash(&b"hello deadbeef"[..]), Done(&b" deadbeef"[..], None));
     }
 }
