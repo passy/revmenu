@@ -62,16 +62,29 @@ pub fn parse(l: &str) -> Result<Vec<RefLike>, Error> {
 
 #[cfg(test)]
 mod tests {
+    use nom::types::CompleteStr;
+
     #[test]
     fn test_reflike() {
-        assert_eq!(super::reflike(&b"deadbeef"[..]), Ok((&b""[..], super::RefLike { hash: "deadbeef".to_string() })));
-        assert_eq!(super::reflike(&b"deadberg"[..]), Ok((&b"rg"[..], super::RefLike { hash: "deadbe".to_string() })));
+        assert_eq!(
+            super::reflike(CompleteStr("deadbeef")),
+            Ok((CompleteStr(""), super::RefLike { hash: "deadbeef".to_string() }))
+        );
+        assert_eq!(
+            super::reflike(CompleteStr("deadberg")),
+             Ok((CompleteStr("rg"), super::RefLike { hash: "deadbe".to_string() }))
+        );
     }
 
     #[test]
     fn test_hashes() {
-        assert_eq!(super::hash(&b"deadbeef"[..]), Ok((&b""[..], Some(super::RefLike { hash: "deadbeef".to_string() }))));
+        assert_eq!(
+            super::hash(CompleteStr("deadbeef")),
+            Ok((CompleteStr(""), Some(super::RefLike { hash: "deadbeef".to_string() }))));
         // Obviously not what we actually want.
-        // assert_eq!(super::hash(&b"hello deadbeef"[..]), Ok((&b" deadbeef"[..], None)));
+        assert_eq!(
+            super::hash(CompleteStr("hello deadbeef")),
+            Ok((CompleteStr(" deadbeef"), None))
+        );
     }
 }
