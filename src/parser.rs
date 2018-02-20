@@ -1,4 +1,4 @@
-use nom::{is_hex_digit, Err, hex_digit};
+use nom::{hex_digit, is_hex_digit, Err};
 use nom::types::CompleteStr;
 use failure::Error;
 
@@ -9,7 +9,9 @@ pub struct RefLike {
 
 fn mk_reflike(hash: &str) -> Option<RefLike> {
     if hash.len() >= 6 {
-        Some(RefLike { hash: hash.to_owned() })
+        Some(RefLike {
+            hash: hash.to_owned(),
+        })
     } else {
         None
     }
@@ -41,9 +43,9 @@ named!(
 
 pub fn parse(l: &str) -> Result<Vec<RefLike>, Error> {
     match tokens(CompleteStr(l)) {
-        Ok((_remaining, value)) => { Ok(value) },
-        Err(Err::Incomplete(needed)) => { bail!("Incomplete, needed: {:?}", needed) },
-        Err(Err::Error(e)) | Err(Err::Failure(e)) => { bail!("Parsing failure: {:?}", e) },
+        Ok((_remaining, value)) => Ok(value),
+        Err(Err::Incomplete(needed)) => bail!("Incomplete, needed: {:?}", needed),
+        Err(Err::Error(e)) | Err(Err::Failure(e)) => bail!("Parsing failure: {:?}", e),
     }
 }
 
@@ -66,7 +68,17 @@ mod tests {
 
     #[test]
     fn test_tokens() {
-        let result = Ok((CompleteStr(""), vec![super::RefLike { hash: "deadbeef".to_string() }, super::RefLike { hash: "aaabbbcccddd".to_string() }]));
+        let result = Ok((
+            CompleteStr(""),
+            vec![
+                super::RefLike {
+                    hash: "deadbeef".to_string(),
+                },
+                super::RefLike {
+                    hash: "aaabbbcccddd".to_string(),
+                },
+            ],
+        ));
 
         assert_eq!(
             super::tokens(CompleteStr("deadbeef-525\naaabbbcccddd")),
