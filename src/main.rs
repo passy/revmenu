@@ -49,7 +49,7 @@ fn run() -> Result<exitcode::ExitCode, Error> {
         .lines()
         .filter_map(|line| {
             line.map_err(|e| e.into())
-                .and_then(|l| parser::parse(&l))
+                .and_then(|l| parser::parse_line(&l))
                 .ok()
         })
         .flat_map(|a| a);

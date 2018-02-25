@@ -7,6 +7,13 @@ pub struct RefLike {
     pub hash: String,
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub struct LocatedElement<A> {
+    pub el: A,
+    pub col: u32,
+    pub line: u32,
+}
+
 fn mk_reflike(hash: &str) -> Option<RefLike> {
     if hash.len() >= 6 {
         Some(RefLike {
@@ -41,7 +48,7 @@ named!(
     })
 );
 
-pub fn parse(l: &str) -> Result<Vec<RefLike>, Error> {
+pub fn parse_line(l: &str) -> Result<Vec<RefLike>, Error> {
     match tokens(CompleteStr(l)) {
         Ok((_remaining, value)) => Ok(value),
         Err(Err::Incomplete(needed)) => bail!("Incomplete, needed: {:?}", needed),
