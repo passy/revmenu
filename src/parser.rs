@@ -1,4 +1,4 @@
-use nom::{hex_digit, is_hex_digit, Err};
+use nom::{hex_digit, is_hex_digit, Err, Offset};
 use nom::types::CompleteStr;
 use failure::Error;
 
@@ -8,10 +8,10 @@ pub struct RefLike {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct LocatedElement<A> {
+pub struct Located<A> {
     pub el: A,
-    pub col: u32,
-    pub line: u32,
+    pub col: usize,
+    pub line: usize,
 }
 
 fn mk_reflike(hash: &str) -> Option<RefLike> {
@@ -35,7 +35,7 @@ named!(
 
 named!(
     token<CompleteStr, CompleteStr>,
-    terminated!(hex_digit, terminator)
+    terminated!(hex_digit, alt!(eof!() | terminator))
 );
 
 named!(
@@ -56,9 +56,37 @@ pub fn parse_line(l: &str) -> Result<Vec<RefLike>, Error> {
     }
 }
 
+pub fn parse(ls: &str) -> Result<Vec<Located<RefLike>>, Error> {
+    // Holy mutable son of satan, this needs a refactor.
+    let mut tokens: Vec<Located<RefLike>> = vec![];
+    let mut offset: usize = 0usize;
+    let mut cls = CompleteStr(ls);
+
+    loop {
+        match token(cls) {
+            Ok((remaining, value)) => {
+                if let Some(v) = mk_reflike(value.0) {
+                    tokens.push(Located { line: 0, col: offset, el: v });
+                }
+                offset += cls.offset(&remaining);
+
+                if remaining.0.is_empty() {
+                    break;
+                } else {
+                    cls = remaining;
+                }
+            },
+            Err(Err::Incomplete(needed)) => bail!("Incomplete, needed: {:?}", needed),
+            Err(Err::Error(e)) | Err(Err::Failure(e)) => bail!("Parsing failure: {:?}", e),
+        }
+    }
+    Ok(tokens)
+}
+
 #[cfg(test)]
 mod tests {
     use nom::types::CompleteStr;
+    use failure::Error;
 
     #[test]
     fn test_token() {
@@ -95,6 +123,19 @@ mod tests {
         assert_eq!(
             super::tokens(CompleteStr("deadbeefx525zzzzaaaXXXaaabbbcccddd")),
             result
+        );
+    }
+
+    #[test]
+    fn test_full_parse() {
+        let reference = super::RefLike { hash: "deadbeef".to_string(), };
+        let el = super::Located { col: 0, line: 0, el: reference };
+        let result_ = super::parse("deadbeef-525-hello-faceb00c");
+
+        assert_eq!(
+            result_.unwrap(),
+            vec![super::Located { el: super::RefLike { hash: "deadbeef".to_string() }, col: 0, line: 0 },
+                 super::Located { el: super::RefLike { hash: "faceb00c".to_string() }, col: 19, line: 0 }]
         );
     }
 }
