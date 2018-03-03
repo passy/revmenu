@@ -86,7 +86,6 @@ pub fn parse(ls: &str) -> Result<Vec<Located<RefLike>>, Error> {
 #[cfg(test)]
 mod tests {
     use nom::types::CompleteStr;
-    use failure::Error;
 
     #[test]
     fn test_token() {
@@ -128,12 +127,8 @@ mod tests {
 
     #[test]
     fn test_full_parse() {
-        let reference = super::RefLike { hash: "deadbeef".to_string(), };
-        let el = super::Located { col: 0, line: 0, el: reference };
-        let result_ = super::parse("deadbeef-525-hello-faceb00c");
-
         assert_eq!(
-            result_.unwrap(),
+            super::parse("deadbeef-525-hello-faceb00c").unwrap(),
             vec![super::Located { el: super::RefLike { hash: "deadbeef".to_string() }, col: 0, line: 0 },
                  super::Located { el: super::RefLike { hash: "faceb00c".to_string() }, col: 19, line: 0 }]
         );
