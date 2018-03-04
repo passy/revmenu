@@ -82,7 +82,6 @@ pub fn parse_bufread<T>(reader: T) -> Vec<Located<RefLike>>
 #[cfg(test)]
 mod tests {
     use nom::types::CompleteStr;
-    use std::io::BufRead;
 
     fn mk_located(hash: &str, col: usize, line: usize) -> super::Located<super::RefLike> {
         super::Located { el: super::RefLike { hash: hash.to_string() }, col: col, line: line }
@@ -116,7 +115,7 @@ mod tests {
 
         assert_eq!(
             super::parse_bufread(cursor),
-            vec![mk_located("deadbeef", 0, 0),
+            vec![mk_located("deadbeef", 0, 6),
                  mk_located("9d393a816701d3e74f268f3b6c3f6ff43f25e811", 6, 2)]
         );
     }
