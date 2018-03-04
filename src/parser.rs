@@ -14,6 +14,39 @@ pub struct Located<A> {
     pub line: usize,
 }
 
+#[derive(Debug)]
+struct TokenParser<'a> {
+    input: CompleteStr<'a>,
+    remaining: CompleteStr<'a>,
+    offset: usize,
+}
+
+fn token_parser<'a>(ls: &'a str) -> TokenParser<'a> {
+    let cs = CompleteStr(ls);
+    TokenParser { input: cs, remaining: cs, offset: 0 }
+}
+
+impl<'a> Iterator for TokenParser<'a> {
+    type Item = Result<(usize, CompleteStr<'a>), Error>;
+
+    fn next(&mut self) -> Option<Result<(usize, CompleteStr<'a>), Error>> {
+        match token(self.remaining) {
+            Ok((remaining, value)) => {
+                self.offset += self.input.offset(&remaining);
+
+                if remaining.0.is_empty() {
+                    None
+                } else {
+                    self.remaining = remaining;
+                    Some(Ok((self.offset, value)))
+                }
+            },
+            Err(Err::Incomplete(needed)) => Some(Err(format_err!("Incomplete, needed: {:?}", needed))),
+            Err(Err::Error(e)) | Err(Err::Failure(e)) => Some(Err(format_err!("Parsing failure: {:?}", e))),
+        }
+    }
+}
+
 fn mk_reflike(hash: &str) -> Option<RefLike> {
     if hash.len() >= 6 {
         Some(RefLike {
@@ -37,24 +70,6 @@ named!(
     token<CompleteStr, CompleteStr>,
     terminated!(hex_digit, alt!(eof!() | terminator))
 );
-
-named!(
-    tokens<CompleteStr, Vec<RefLike>>,
-    fold_many1!(token, vec![], |mut acc: Vec<RefLike>, item: CompleteStr| {
-        match mk_reflike(item.0) {
-            Some(r) => { acc.push(r); acc }
-            None => acc,
-        }
-    })
-);
-
-pub fn parse_line(l: &str) -> Result<Vec<RefLike>, Error> {
-    match tokens(CompleteStr(l)) {
-        Ok((_remaining, value)) => Ok(value),
-        Err(Err::Incomplete(needed)) => bail!("Incomplete, needed: {:?}", needed),
-        Err(Err::Error(e)) | Err(Err::Failure(e)) => bail!("Parsing failure: {:?}", e),
-    }
-}
 
 pub fn parse(ls: &str) -> Result<Vec<Located<RefLike>>, Error> {
     // Holy mutable son of satan, this needs a refactor.
@@ -83,6 +98,28 @@ pub fn parse(ls: &str) -> Result<Vec<Located<RefLike>>, Error> {
     Ok(tokens)
 }
 
+pub fn parse_(ls: &str) -> Result<Vec<Located<RefLike>>, Error> {
+    token_parser(ls).fold(Ok(vec![]), |acc, res| {
+        match acc {
+            Err(_) => acc,
+            Ok(mut tokens) => {
+                match res {
+                    Err(err) => Err(err),
+                    Ok((offset, token)) => {
+                        match mk_reflike(token.0) {
+                            Some(reflike) => {
+                                tokens.push(Located { el: reflike, line: 0, col: offset });
+                                Ok(tokens)
+                            },
+                            None => Ok(tokens),
+                        }
+                    },
+                }
+            }
+        }
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use nom::types::CompleteStr;
@@ -97,31 +134,6 @@ mod tests {
         assert_eq!(
             super::token(CompleteStr("deadbeef-faceb00c")),
             Ok((CompleteStr("faceb00c"), CompleteStr("deadbeef")))
-        );
-    }
-
-    #[test]
-    fn test_tokens() {
-        let result = Ok((
-            CompleteStr(""),
-            vec![
-                super::RefLike {
-                    hash: "deadbeef".to_string(),
-                },
-                super::RefLike {
-                    hash: "aaabbbcccddd".to_string(),
-                },
-            ],
-        ));
-
-        assert_eq!(
-            super::tokens(CompleteStr("deadbeef-525\naaabbbcccddd")),
-            result
-        );
-
-        assert_eq!(
-            super::tokens(CompleteStr("deadbeefx525zzzzaaaXXXaaabbbcccddd")),
-            result
         );
     }
 
