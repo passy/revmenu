@@ -108,4 +108,16 @@ mod tests {
             vec![mk_located("deadbeef", 0, 0),
                  mk_located("faceb00c", 19, 0)]);
     }
+
+    #[test]
+    fn test_full_parse_lines() {
+        let str = "hello deadbeef\nlorem ipsum\r\ndolor 9d393a816701d3e74f268f3b6c3f6ff43f25e811 sup\n";
+        let cursor = ::std::io::Cursor::new(str);
+
+        assert_eq!(
+            super::parse_bufread(cursor),
+            vec![mk_located("deadbeef", 0, 0),
+                 mk_located("9d393a816701d3e74f268f3b6c3f6ff43f25e811", 6, 2)]
+        );
+    }
 }
