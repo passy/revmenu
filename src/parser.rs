@@ -48,7 +48,11 @@ pub fn parse_line(ls: &str, row: usize) -> Result<Vec<Located<RefLike>>, Error> 
         match token(cls) {
             Ok((remaining, value)) => {
                 if let Some(v) = mk_reflike(value.0) {
-                    tokens.push(Located { line: row, col: offset, el: v });
+                    tokens.push(Located {
+                        line: row,
+                        col: offset,
+                        el: v,
+                    });
                 }
                 offset += cls.offset(&remaining);
 
@@ -57,7 +61,7 @@ pub fn parse_line(ls: &str, row: usize) -> Result<Vec<Located<RefLike>>, Error> 
                 } else {
                     cls = remaining;
                 }
-            },
+            }
             Err(Err::Incomplete(needed)) => bail!("Incomplete, needed: {:?}", needed),
             Err(Err::Error(e)) | Err(Err::Failure(e)) => bail!("Parsing failure: {:?}", e),
         }
@@ -66,7 +70,9 @@ pub fn parse_line(ls: &str, row: usize) -> Result<Vec<Located<RefLike>>, Error> 
 }
 
 pub fn parse_bufread<T>(reader: T) -> Vec<Located<RefLike>>
-    where T: ::std::io::BufRead {
+where
+    T: ::std::io::BufRead,
+{
     reader
         .lines()
         .enumerate()
@@ -84,7 +90,13 @@ mod tests {
     use nom::types::CompleteStr;
 
     fn mk_located(hash: &str, col: usize, line: usize) -> super::Located<super::RefLike> {
-        super::Located { el: super::RefLike { hash: hash.to_string() }, col: col, line: line }
+        super::Located {
+            el: super::RefLike {
+                hash: hash.to_string(),
+            },
+            col: col,
+            line: line,
+        }
     }
 
     #[test]
@@ -104,19 +116,22 @@ mod tests {
     fn test_full_parse_line() {
         assert_eq!(
             super::parse_line("deadbeef-525-hello-faceb00c", 0).unwrap(),
-            vec![mk_located("deadbeef", 0, 0),
-                 mk_located("faceb00c", 19, 0)]);
+            vec![mk_located("deadbeef", 0, 0), mk_located("faceb00c", 19, 0)]
+        );
     }
 
     #[test]
     fn test_full_parse_lines() {
-        let str = "hello deadbeef\nlorem ipsum\r\ndolor 9d393a816701d3e74f268f3b6c3f6ff43f25e811 sup\n";
+        let str =
+            "hello deadbeef\nlorem ipsum\r\ndolor 9d393a816701d3e74f268f3b6c3f6ff43f25e811 sup\n";
         let cursor = ::std::io::Cursor::new(str);
 
         assert_eq!(
             super::parse_bufread(cursor),
-            vec![mk_located("deadbeef", 0, 6),
-                 mk_located("9d393a816701d3e74f268f3b6c3f6ff43f25e811", 6, 2)]
+            vec![
+                mk_located("deadbeef", 0, 6),
+                mk_located("9d393a816701d3e74f268f3b6c3f6ff43f25e811", 6, 2),
+            ]
         );
     }
 }
