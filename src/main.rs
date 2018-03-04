@@ -10,6 +10,7 @@ extern crate nom;
 
 use std::io::{stderr, stdin, BufRead, BufReader, Write};
 use std::fs::File;
+use std::iter::Iterator;
 use std::process::exit;
 use failure::{err_msg, Error};
 use dialoguer::Select;
@@ -45,17 +46,10 @@ fn run() -> Result<exitcode::ExitCode, Error> {
     let cwd = std::env::current_dir()?;
     let vcs_ = vcs::detect_vcs(&cwd)?;
 
-    let revs = reader
-        .lines()
-        .filter_map(|line| {
-            line.map_err(|e| e.into())
-                .and_then(|l| parser::parse(&l))
-                .ok()
-        })
-        .flat_map(|a| a);
+    let revs: Vec<parser::Located<parser::RefLike>> = parser::parse_bufread(reader);
 
     // TODO: Use location info.
-    let hashes: Vec<String> = revs.map(|r| r.el.hash).collect();
+    let hashes: Vec<String> = revs.into_iter().map(|r| r.el.hash).collect();
 
     if hashes.len() == 0 {
         return Ok(exitcode::OK);

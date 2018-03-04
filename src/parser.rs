@@ -38,7 +38,7 @@ named!(
     terminated!(hex_digit, alt!(eof!() | terminator))
 );
 
-pub fn parse(ls: &str) -> Result<Vec<Located<RefLike>>, Error> {
+pub fn parse_line(ls: &str, row: usize) -> Result<Vec<Located<RefLike>>, Error> {
     // Holy mutable son of satan, this needs a refactor.
     let mut tokens: Vec<Located<RefLike>> = vec![];
     let mut offset: usize = 0usize;
@@ -48,7 +48,7 @@ pub fn parse(ls: &str) -> Result<Vec<Located<RefLike>>, Error> {
         match token(cls) {
             Ok((remaining, value)) => {
                 if let Some(v) = mk_reflike(value.0) {
-                    tokens.push(Located { line: 0, col: offset, el: v });
+                    tokens.push(Located { line: row, col: offset, el: v });
                 }
                 offset += cls.offset(&remaining);
 
@@ -65,9 +65,28 @@ pub fn parse(ls: &str) -> Result<Vec<Located<RefLike>>, Error> {
     Ok(tokens)
 }
 
+pub fn parse_bufread<T>(reader: T) -> Vec<Located<RefLike>>
+    where T: ::std::io::BufRead {
+    reader
+        .lines()
+        .enumerate()
+        .filter_map(|(lineno, line)| {
+            line.map_err(|e| e.into())
+                .and_then(|l| parse_line(&l, lineno))
+                .ok()
+        })
+        .flat_map(|a| a)
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use nom::types::CompleteStr;
+    use std::io::BufRead;
+
+    fn mk_located(hash: &str, col: usize, line: usize) -> super::Located<super::RefLike> {
+        super::Located { el: super::RefLike { hash: hash.to_string() }, col: col, line: line }
+    }
 
     #[test]
     fn test_token() {
@@ -83,11 +102,10 @@ mod tests {
     }
 
     #[test]
-    fn test_full_parse() {
+    fn test_full_parse_line() {
         assert_eq!(
-            super::parse("deadbeef-525-hello-faceb00c").unwrap(),
-            vec![super::Located { el: super::RefLike { hash: "deadbeef".to_string() }, col: 0, line: 0 },
-                 super::Located { el: super::RefLike { hash: "faceb00c".to_string() }, col: 19, line: 0 }]
-        );
+            super::parse_line("deadbeef-525-hello-faceb00c", 0).unwrap(),
+            vec![mk_located("deadbeef", 0, 0),
+                 mk_located("faceb00c", 19, 0)]);
     }
 }
