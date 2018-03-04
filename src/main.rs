@@ -45,33 +45,34 @@ fn run() -> Result<exitcode::ExitCode, Error> {
     let cwd = std::env::current_dir()?;
     let vcs_ = vcs::detect_vcs(&cwd)?;
 
-    // let revs = reader
-    //     .lines()
-    //     .filter_map(|line| {
-    //         line.map_err(|e| e.into())
-    //             .and_then(|l| parser::parse_line(&l))
-    //             .ok()
-    //     })
-    //     .flat_map(|a| a);
+    let revs = reader
+        .lines()
+        .filter_map(|line| {
+            line.map_err(|e| e.into())
+                .and_then(|l| parser::parse(&l))
+                .ok()
+        })
+        .flat_map(|a| a);
 
-    // let hashes: Vec<String> = revs.map(|r| r.hash).collect();
+    // TODO: Use location info.
+    let hashes: Vec<String> = revs.map(|r| r.el.hash).collect();
 
-    // if hashes.len() == 0 {
-    //     return Ok(exitcode::OK);
-    // }
+    if hashes.len() == 0 {
+        return Ok(exitcode::OK);
+    }
 
-    // let selection = Select::new()
-    //     .default(0)
-    //     .items(&hashes.as_slice())
-    //     .interact()
-    //     .unwrap();
+    let selection = Select::new()
+        .default(0)
+        .items(&hashes.as_slice())
+        .interact()
+        .unwrap();
 
-    // let selected_hash = &hashes.get(selection);
+    let selected_hash = &hashes.get(selection);
 
-    // if let &Some(h) = selected_hash {
-    //     println!("Checking out {} revision: {}", vcs_.name(), h);
-    //     vcs_.checkout(h)?;
-    // }
+    if let &Some(h) = selected_hash {
+        println!("Checking out {} revision: {}", vcs_.name(), h);
+        vcs_.checkout(h)?;
+    }
 
     Ok(exitcode::OK)
 }
