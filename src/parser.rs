@@ -44,9 +44,12 @@ pub fn parse_line(ls: &str, row: usize) -> Result<Vec<Located<RefLike>>, Error> 
     let mut offset: usize = 0usize;
     let mut cls = CompleteStr(ls);
 
-    loop {
+    while !cls.0.is_empty() {
+        println!("cls: {:?}", cls);
         match token(cls) {
             Ok((remaining, value)) => {
+                println!("remaining: {:?}", remaining);
+                println!("value: {:?}", value);
                 if let Some(v) = mk_reflike(value.0) {
                     tokens.push(Located {
                         line: row,
@@ -56,12 +59,8 @@ pub fn parse_line(ls: &str, row: usize) -> Result<Vec<Located<RefLike>>, Error> 
                 }
                 offset += cls.offset(&remaining);
 
-                if remaining.0.is_empty() {
-                    break;
-                } else {
-                    cls = remaining;
-                }
-            }
+                cls = remaining;
+            },
             Err(Err::Incomplete(needed)) => bail!("Incomplete, needed: {:?}", needed),
             Err(Err::Error(e)) | Err(Err::Failure(e)) => bail!("Parsing failure: {:?}", e),
         }
@@ -88,7 +87,6 @@ where
 #[cfg(test)]
 mod tests {
     use nom::types::CompleteStr;
-
     fn mk_located(hash: &str, col: usize, line: usize) -> super::Located<super::RefLike> {
         super::Located {
             el: super::RefLike {
