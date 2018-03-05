@@ -34,8 +34,8 @@ named!(
 );
 
 named!(
-    token<CompleteStr, CompleteStr>,
-    terminated!(hex_digit, alt!(eof!() | terminator))
+    token<CompleteStr, Option<CompleteStr>>,
+    terminated!(opt!(hex_digit), alt!(eof!() | terminator))
 );
 
 pub fn parse_line(ls: &str, row: usize) -> Result<Vec<Located<RefLike>>, Error> {
@@ -45,11 +45,11 @@ pub fn parse_line(ls: &str, row: usize) -> Result<Vec<Located<RefLike>>, Error> 
     let mut cls = CompleteStr(ls);
 
     while !cls.0.is_empty() {
-        println!("cls: {:?}", cls);
         match token(cls) {
-            Ok((remaining, value)) => {
-                println!("remaining: {:?}", remaining);
-                println!("value: {:?}", value);
+            Ok((remaining, None)) => {
+                cls = remaining;
+            },
+            Ok((remaining, Some(value))) => {
                 if let Some(v) = mk_reflike(value.0) {
                     tokens.push(Located {
                         line: row,
@@ -58,11 +58,14 @@ pub fn parse_line(ls: &str, row: usize) -> Result<Vec<Located<RefLike>>, Error> 
                     });
                 }
                 offset += cls.offset(&remaining);
-
                 cls = remaining;
             },
-            Err(Err::Incomplete(needed)) => bail!("Incomplete, needed: {:?}", needed),
-            Err(Err::Error(e)) | Err(Err::Failure(e)) => bail!("Parsing failure: {:?}", e),
+            Err(Err::Incomplete(needed)) => {
+                bail!("Incomplete, needed: {:?}", needed);
+            },
+            Err(Err::Error(e)) | Err(Err::Failure(e)) => {
+                bail!("Parsing failure: {:?}", e);
+            },
         }
     }
     Ok(tokens)
@@ -101,12 +104,12 @@ mod tests {
     fn test_token() {
         assert_eq!(
             super::token(CompleteStr("deadbeef")),
-            Ok((CompleteStr(""), CompleteStr("deadbeef")))
+            Ok((CompleteStr(""), Some(CompleteStr("deadbeef"))))
         );
 
         assert_eq!(
             super::token(CompleteStr("deadbeef-faceb00c")),
-            Ok((CompleteStr("faceb00c"), CompleteStr("deadbeef")))
+            Ok((CompleteStr("faceb00c"), Some(CompleteStr("deadbeef"))))
         );
     }
 
@@ -127,7 +130,7 @@ mod tests {
         assert_eq!(
             super::parse_bufread(cursor),
             vec![
-                mk_located("deadbeef", 0, 6),
+                mk_located("deadbeef", 5, 0),
                 mk_located("9d393a816701d3e74f268f3b6c3f6ff43f25e811", 6, 2),
             ]
         );
