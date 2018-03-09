@@ -9,3 +9,4 @@ exitcode = "1.1.2"
 failure = "0.1.1"
 nom = "4.0.0-beta1"
 dialoguer = { git = "https://github.com/mitsuhiko/dialoguer", rev = "5f28d3d74768b6ba532866ee3c83df9324f9df06" }
+itertools = "0.7.7"
