@@ -8,6 +8,7 @@ extern crate failure;
 extern crate itertools;
 #[macro_use]
 extern crate nom;
+extern crate colored;
 
 use std::io::{stderr, stdin, BufRead, BufReader, Write};
 use std::fs::File;
@@ -17,6 +18,7 @@ use failure::{err_msg, Error};
 use dialoguer::Select;
 use types::RevLocations;
 use itertools::Itertools;
+use colored::Colorize;
 
 mod cli;
 mod parser;
@@ -72,10 +74,8 @@ fn highlight_line(str: &str, rls: &Vec<&parser::Located<parser::RefLike>>) -> St
         let s = x.el.hash.len();
         let j = x.col + s;
 
-        acc.push(&str[i..x.col]);
-        acc.push(&" -> ");
-        acc.push(&x.el.hash);
-        acc.push(&" <- ");
+        acc.push(str[i..x.col].to_string());
+        acc.push(x.el.hash.magenta().to_string());
         (j, acc)
     });
 
