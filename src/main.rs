@@ -37,11 +37,49 @@ fn main() {
 
 fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations) {
     let grouped = rls.iter().group_by(|e| e.line);
+    let mut igrouped = grouped.into_iter().peekable();
+    let grouped_lines = vlines.iter().enumerate().map(|(vlno, vl)| {
+        let matched =
+            if let Some(&(lno, ref _ls)) = igrouped.peek() {
+                if lno == vlno {
+                    true
+                } else {
+                    false
+                }
+            } else {
+                false
+            };
 
-    for (lno, line) in &grouped {
-        let vl = &vlines[lno];
-        println!("{:?}", &vl[0..10]);
+        if matched {
+            match igrouped.next() {
+                None => (vl, vec![]),
+                Some((_, group)) => {
+                    (vl, group.collect())
+                },
+            }
+        } else {
+            (vl, vec![])
+        }
+    });
+
+    for (original_line, rlocs) in grouped_lines {
+        println!("{}", highlight_line(original_line, &rlocs));
     }
+}
+
+fn highlight_line(str: &str, rls: &Vec<&parser::Located<parser::RefLike>>) -> String {
+    let (i, res) = rls.iter().fold((0usize, vec![]), |(i, mut acc), &x| {
+        let s = x.el.hash.len();
+        let j = x.col + s;
+
+        acc.push(&str[i..x.col]);
+        acc.push(&" -> ");
+        acc.push(&x.el.hash);
+        acc.push(&" <- ");
+        (j, acc)
+    });
+
+    format!("{}{}", res.join(""), &str[i..])
 }
 
 fn run() -> Result<exitcode::ExitCode, Error> {
