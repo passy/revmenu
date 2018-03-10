@@ -71,17 +71,25 @@ pub fn parse_line(ls: &str, row: usize) -> Result<Vec<Located<RefLike>>, Error> 
     Ok(tokens)
 }
 
+#[allow(unused)]
 pub fn parse_bufread<T>(reader: T) -> Vec<Located<RefLike>>
 where
     T: ::std::io::BufRead,
 {
-    reader
-        .lines()
+    // Pretty sure that this is a terrible idea, but I don't feel like
+    // rewriting my tests right now.
+    let lines: Vec<_> = reader.lines().filter_map(|l| l.ok()).collect();
+    parse_lines(lines.iter())
+}
+
+pub fn parse_lines<'a, I>(lines: I) -> Vec<Located<RefLike>>
+where
+    I: Iterator<Item = &'a String>,
+{
+    lines
         .enumerate()
         .filter_map(|(lineno, line)| {
-            line.map_err(|e| e.into())
-                .and_then(|l| parse_line(&l, lineno))
-                .ok()
+            parse_line(&line, lineno).ok()
         })
         .flat_map(|a| a)
         .collect()

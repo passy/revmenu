@@ -7,6 +7,7 @@ extern crate exitcode;
 extern crate failure;
 #[macro_use]
 extern crate nom;
+extern crate itertools;
 
 use std::io::{stderr, stdin, BufRead, BufReader, Write};
 use std::fs::File;
@@ -14,10 +15,13 @@ use std::iter::Iterator;
 use std::process::exit;
 use failure::{err_msg, Error};
 use dialoguer::Select;
+use types::RevLocations;
+use itertools::Itertools;
 
 mod cli;
 mod parser;
 mod vcs;
+mod types;
 
 fn main() {
     match run() {
@@ -43,10 +47,12 @@ fn run() -> Result<exitcode::ExitCode, Error> {
         Box::new(BufReader::new(file))
     };
 
+    let lines: Vec<String> = reader.lines().filter_map(|f| f.ok()).collect();
+
     let cwd = std::env::current_dir()?;
     let vcs_ = vcs::detect_vcs(&cwd)?;
 
-    let revs: Vec<parser::Located<parser::RefLike>> = parser::parse_bufread(reader);
+    let revs: RevLocations = parser::parse_lines(lines.iter());
 
     // TODO: Use location info.
     let hashes: Vec<String> = revs.into_iter().map(|r| r.el.hash).collect();
