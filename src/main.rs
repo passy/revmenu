@@ -11,11 +11,13 @@ extern crate itertools;
 extern crate nom;
 
 use std::io::{stderr, stdin, BufRead, BufReader, Write};
+use std::ops::Rem;
+use std::process;
 use std::fs::File;
 use std::iter::Iterator;
 use std::process::exit;
 use failure::{err_msg, Error};
-use dialoguer::Select;
+use console::{Term, Key};
 use types::RevLocations;
 use itertools::Itertools;
 use colored::Colorize;
@@ -37,7 +39,7 @@ fn main() {
     }
 }
 
-fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations) -> String {
+fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations, selected: Option<&parser::Located<parser::RefLike>>) -> Vec<String> {
     let grouped = rls.iter().group_by(|e| e.line);
     let mut igrouped = grouped.into_iter().peekable();
     let grouped_lines = vlines.iter().enumerate().map(|(vlno, vl)| {
@@ -62,19 +64,19 @@ fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations) -> String {
     });
 
     // TODO: Another one for immutable.rs.
-    grouped_lines.fold(String::new(), |mut acc, (original_line, rlocs)| {
-        acc.push_str(&highlight_line(
+    grouped_lines.fold(vec![], |mut acc, (original_line, rlocs)| {
+        acc.push(&highlight_line(
             original_line,
             &rlocs,
-            rlocs.get(1).map(|c| *c),
+            selected
         ));
-        acc.push_str("\n");
         acc
     })
 }
 
 fn highlight_line(
     str: &str,
+    // FIXME: This type is weird and I don't know why.
     rls: &Vec<&parser::Located<parser::RefLike>>,
     selected: Option<&parser::Located<parser::RefLike>>,
 ) -> String {
@@ -83,6 +85,7 @@ fn highlight_line(
         let j = x.col + s;
 
         acc.push(str[i..x.col].to_string());
+        // TODO: Can we make this a closure of the highlighting method instead?
         if Some(x) == selected {
             acc.push(x.el.hash.yellow().to_string());
         } else {
@@ -116,7 +119,34 @@ fn run() -> Result<exitcode::ExitCode, Error> {
         return Ok(exitcode::OK);
     }
 
-    print!("{}", highlight_revs(&lines, &revs));
+    let mut selected = 0usize;
+    let term = Term::stderr();
+    loop {
+        for line in highlight_revs(&lines, &revs, revs.get(selected)) {
+            term.write_line(&line);
+        }
 
-    Ok(exitcode::OK)
+        match term.read_key()? {
+            Key::ArrowDown | Key::Char('j') => {
+                selected = (selected as u64 + 1).rem(revs.len() as u64) as usize;
+            }
+            Key::ArrowUp | Key::Char('k') => {
+                selected = ((selected as i64 - 1 + revs.len() as i64) % revs.len() as i64) as usize;
+            }
+            Key::Enter => {
+                term.clear_last_lines(lines.len())?;
+                break;
+            },
+            Key::Escape => {
+                process::exit(exitcode::UNAVAILABLE);
+            }
+        }
+    }
+
+    if let Some(rev) = revs.get(selected) {
+        vcs_.checkout(&rev.el.hash);
+        Ok(exitcode::OK)
+    } else {
+        bail!("Selected unavailable rev.")
+    }
 }
