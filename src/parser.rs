@@ -48,7 +48,7 @@ pub fn parse_line(ls: &str, row: usize) -> Result<Vec<Located<RefLike>>, Error> 
         match token(cls) {
             Ok((remaining, None)) => {
                 cls = remaining;
-            },
+            }
             Ok((remaining, Some(value))) => {
                 if let Some(v) = mk_reflike(value.0) {
                     tokens.push(Located {
@@ -59,13 +59,13 @@ pub fn parse_line(ls: &str, row: usize) -> Result<Vec<Located<RefLike>>, Error> 
                 }
                 offset += cls.offset(&remaining);
                 cls = remaining;
-            },
+            }
             Err(Err::Incomplete(needed)) => {
                 bail!("Incomplete, needed: {:?}", needed);
-            },
+            }
             Err(Err::Error(e)) | Err(Err::Failure(e)) => {
                 bail!("Parsing failure: {:?}", e);
-            },
+            }
         }
     }
     Ok(tokens)
@@ -88,9 +88,7 @@ where
 {
     lines
         .enumerate()
-        .filter_map(|(lineno, line)| {
-            parse_line(&line, lineno).ok()
-        })
+        .filter_map(|(lineno, line)| parse_line(&line, lineno).ok())
         .flat_map(|a| a)
         .collect()
 }
