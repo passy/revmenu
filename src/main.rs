@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate clap;
+extern crate colored;
 extern crate console;
 extern crate dialoguer;
 extern crate exitcode;
@@ -8,7 +9,6 @@ extern crate failure;
 extern crate itertools;
 #[macro_use]
 extern crate nom;
-extern crate colored;
 
 use std::io::{stderr, stdin, BufRead, BufReader, Write};
 use std::fs::File;
@@ -41,23 +41,20 @@ fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations) -> String {
     let grouped = rls.iter().group_by(|e| e.line);
     let mut igrouped = grouped.into_iter().peekable();
     let grouped_lines = vlines.iter().enumerate().map(|(vlno, vl)| {
-        let matched =
-            if let Some(&(lno, ref _ls)) = igrouped.peek() {
-                if lno == vlno {
-                    true
-                } else {
-                    false
-                }
+        let matched = if let Some(&(lno, ref _ls)) = igrouped.peek() {
+            if lno == vlno {
+                true
             } else {
                 false
-            };
+            }
+        } else {
+            false
+        };
 
         if matched {
             match igrouped.next() {
                 None => (vl, vec![]),
-                Some((_, group)) => {
-                    (vl, group.collect())
-                },
+                Some((_, group)) => (vl, group.collect()),
             }
         } else {
             (vl, vec![])
@@ -66,13 +63,21 @@ fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations) -> String {
 
     // TODO: Another one for immutable.rs.
     grouped_lines.fold(String::new(), |mut acc, (original_line, rlocs)| {
-        acc.push_str(&highlight_line(original_line, &rlocs, rlocs.get(1).map(|c| *c)));
+        acc.push_str(&highlight_line(
+            original_line,
+            &rlocs,
+            rlocs.get(1).map(|c| *c),
+        ));
         acc.push_str("\n");
         acc
     })
 }
 
-fn highlight_line(str: &str, rls: &Vec<&parser::Located<parser::RefLike>>, selected: Option<&parser::Located<parser::RefLike>>) -> String {
+fn highlight_line(
+    str: &str,
+    rls: &Vec<&parser::Located<parser::RefLike>>,
+    selected: Option<&parser::Located<parser::RefLike>>,
+) -> String {
     let (i, res) = rls.iter().fold((0usize, vec![]), |(i, mut acc), &x| {
         let s = x.el.hash.len();
         let j = x.col + s;
