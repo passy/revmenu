@@ -67,6 +67,7 @@ fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations) -> String {
     // TODO: Another one for immutable.rs.
     grouped_lines.fold(String::new(), |mut acc, (original_line, rlocs)| {
         acc.push_str(&highlight_line(original_line, &rlocs, rlocs.get(1).map(|c| *c)));
+        acc.push_str("\n");
         acc
     })
 }
