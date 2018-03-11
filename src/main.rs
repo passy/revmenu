@@ -37,7 +37,7 @@ fn main() {
     }
 }
 
-fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations) {
+fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations) -> String {
     let grouped = rls.iter().group_by(|e| e.line);
     let mut igrouped = grouped.into_iter().peekable();
     let grouped_lines = vlines.iter().enumerate().map(|(vlno, vl)| {
@@ -64,9 +64,11 @@ fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations) {
         }
     });
 
-    for (original_line, rlocs) in grouped_lines {
-        println!("{}", highlight_line(original_line, &rlocs, rlocs.get(1).map(|c| *c)));
-    }
+    // TODO: Another one for immutable.rs.
+    grouped_lines.fold(String::new(), |mut acc, (original_line, rlocs)| {
+        acc.push_str(&highlight_line(original_line, &rlocs, rlocs.get(1).map(|c| *c)));
+        acc
+    })
 }
 
 fn highlight_line(str: &str, rls: &Vec<&parser::Located<parser::RefLike>>, selected: Option<&parser::Located<parser::RefLike>>) -> String {
@@ -104,27 +106,11 @@ fn run() -> Result<exitcode::ExitCode, Error> {
 
     let revs: RevLocations = parser::parse_lines(lines.iter());
 
-    // TODO: Use location info.
-    // let hashes: Vec<String> = revs.into_iter().map(|r| r.el.hash).collect();
+    if revs.len() == 0 {
+        return Ok(exitcode::OK);
+    }
 
-    // if hashes.len() == 0 {
-    //     return Ok(exitcode::OK);
-    // }
-
-    highlight_revs(&lines, &revs);
-
-    // let selection = Select::new()
-    //     .default(0)
-    //     .items(&hashes.as_slice())
-    //     .interact()
-    //     .unwrap();
-
-    // let selected_hash = &hashes.get(selection);
-
-    // if let &Some(h) = selected_hash {
-    //     println!("Checking out {} revision: {}", vcs_.name(), h);
-    //     vcs_.checkout(h)?;
-    // }
+    print!("{}", highlight_revs(&lines, &revs));
 
     Ok(exitcode::OK)
 }
