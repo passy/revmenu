@@ -65,17 +65,21 @@ fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations) {
     });
 
     for (original_line, rlocs) in grouped_lines {
-        println!("{}", highlight_line(original_line, &rlocs));
+        println!("{}", highlight_line(original_line, &rlocs, rlocs.get(1).map(|c| *c)));
     }
 }
 
-fn highlight_line(str: &str, rls: &Vec<&parser::Located<parser::RefLike>>) -> String {
+fn highlight_line(str: &str, rls: &Vec<&parser::Located<parser::RefLike>>, selected: Option<&parser::Located<parser::RefLike>>) -> String {
     let (i, res) = rls.iter().fold((0usize, vec![]), |(i, mut acc), &x| {
         let s = x.el.hash.len();
         let j = x.col + s;
 
         acc.push(str[i..x.col].to_string());
-        acc.push(x.el.hash.magenta().to_string());
+        if Some(x) == selected {
+            acc.push(x.el.hash.yellow().to_string());
+        } else {
+            acc.push(x.el.hash.magenta().to_string());
+        }
         (j, acc)
     });
 
