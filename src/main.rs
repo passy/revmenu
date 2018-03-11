@@ -65,7 +65,7 @@ fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations, selected: Option
 
     // TODO: Another one for immutable.rs.
     grouped_lines.fold(vec![], |mut acc, (original_line, rlocs)| {
-        acc.push(&highlight_line(
+        acc.push(highlight_line(
             original_line,
             &rlocs,
             selected
@@ -123,14 +123,14 @@ fn run() -> Result<exitcode::ExitCode, Error> {
     let term = Term::stderr();
     loop {
         for line in highlight_revs(&lines, &revs, revs.get(selected)) {
-            term.write_line(&line);
+            term.write_line(&line)?;
         }
 
         match term.read_key()? {
-            Key::ArrowDown | Key::Char('j') => {
+            Key::ArrowDown | Key::ArrowRight | Key::Char('j') => {
                 selected = (selected as u64 + 1).rem(revs.len() as u64) as usize;
             }
-            Key::ArrowUp | Key::Char('k') => {
+            Key::ArrowUp | Key::ArrowLeft | Key::Char('k') => {
                 selected = ((selected as i64 - 1 + revs.len() as i64) % revs.len() as i64) as usize;
             }
             Key::Enter => {
@@ -139,8 +139,11 @@ fn run() -> Result<exitcode::ExitCode, Error> {
             },
             Key::Escape => {
                 process::exit(exitcode::UNAVAILABLE);
-            }
+            },
+            _ => {}
         }
+
+        term.clear_last_lines(lines.len())?;
     }
 
     if let Some(rev) = revs.get(selected) {
