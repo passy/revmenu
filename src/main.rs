@@ -9,7 +9,6 @@ extern crate failure;
 extern crate itertools;
 #[macro_use]
 extern crate nom;
-extern crate itertools;
 
 use std::io::{stderr, stdin, BufRead, BufReader, Write};
 use std::ops::Rem;
@@ -111,8 +110,6 @@ fn run() -> Result<exitcode::ExitCode, Error> {
     };
     let lines: Vec<String> = reader.lines().filter_map(|f| f.ok()).collect();
 
-    let lines: Vec<String> = reader.lines().filter_map(|f| f.ok()).collect();
-
     let cwd = std::env::current_dir()?;
     let vcs_ = vcs::detect_vcs(&cwd)?;
 
@@ -150,7 +147,7 @@ fn run() -> Result<exitcode::ExitCode, Error> {
     }
 
     if let Some(rev) = revs.get(selected) {
-        vcs_.checkout(&rev.el.hash);
+        vcs_.checkout(&rev.el.hash)?;
         Ok(exitcode::OK)
     } else {
         bail!("Selected unavailable rev.")
