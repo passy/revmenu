@@ -76,7 +76,6 @@ fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations, selected: Option
 
 fn highlight_line(
     str: &str,
-    // FIXME: This type looks weird and I don't know why.
     rls: &Vec<&parser::Located<parser::RefLike>>,
     selected: &Option<&parser::Located<parser::RefLike>>,
 ) -> String {
@@ -86,11 +85,14 @@ fn highlight_line(
 
         acc.push(str[i..x.col].to_string());
         // TODO: Can we make this a closure of the highlighting method instead?
-        if &Some(x) == selected {
-            acc.push(x.el.hash.yellow().to_string());
+        let el = if &Some(x) == selected {
+            x.el.hash.yellow().to_string()
         } else {
-            acc.push(x.el.hash.magenta().to_string());
-        }
+            x.el.hash.magenta().to_string()
+        };
+
+        // TODO: Use immutable.rs. This is gross.
+        acc.push(el);
         (j, acc)
     });
 
@@ -139,11 +141,10 @@ fn run() -> Result<exitcode::ExitCode, Error> {
         let file = File::open(file_val)?;
         Box::new(BufReader::new(file))
     };
-    let lines: Vec<String> = reader.lines().filter_map(|f| f.ok()).collect();
 
+    let lines: Vec<String> = reader.lines().filter_map(|f| f.ok()).collect();
     let cwd = std::env::current_dir()?;
     let vcs_ = vcs::detect_vcs(&cwd)?;
-
     let revs: RevLocations = parser::parse_lines(lines.iter());
 
     if revs.len() == 0 {
@@ -157,6 +158,7 @@ fn run() -> Result<exitcode::ExitCode, Error> {
 
     if let Some(rev) = revs.get(selected) {
         vcs_.checkout(&rev.el.hash)?;
+        println!("Checking out revision {} with {} ...", &rev.el.hash, vcs_.name());
         Ok(exitcode::OK)
     } else {
         bail!("Selected unavailable rev.")
