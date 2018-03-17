@@ -86,4 +86,24 @@ mod tests {
             "\u{1b}[35mdeadbeef\u{1b}[0m-525-hello-\u{1b}[35mfaceb00c\u{1b}[0m"
         );
     }
+
+    #[test]
+    fn test_highlight_select_line() {
+            let testline = "deadbeef-525-hello-faceb00c";
+            let revs = vec![mk_located("deadbeef", 0), mk_located("faceb00c", 19)];
+        assert_eq!(
+            super::line(&testline, &revs.iter().collect(), &revs.get(0)),
+            "\u{1b}[33mdeadbeef\u{1b}[0m-525-hello-\u{1b}[35mfaceb00c\u{1b}[0m"
+        );
+    }
+
+    #[test]
+    fn test_highlight_nothing() {
+            let testline = "deadbeef-525-hello-faceb00c";
+            let revs = vec![];
+        assert_eq!(
+            super::line(&testline, &revs.iter().collect(), &None),
+            testline
+        );
+    }
 }
