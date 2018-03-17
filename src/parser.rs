@@ -145,7 +145,7 @@ mod tests {
         assert_eq!(
             super::parse_bufread(cursor),
             vec![
-                mk_located("deadbeef", 5, 0),
+                mk_located("deadbeef", 6, 0),
                 mk_located("9d393a816701d3e74f268f3b6c3f6ff43f25e811", 6, 2),
             ]
         );
