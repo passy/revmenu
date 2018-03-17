@@ -97,7 +97,7 @@ fn highlight_line(
     format!("{}{}", res.join(""), &str[i..])
 }
 
-fn select(term: &Term, lines: &Vec<String>, revs: &RevLocations) -> Result<usize, Error> {
+fn select(term: &Term, lines: &Vec<String>, revs: &RevLocations) -> Result<Option<usize>, Error> {
     let mut selected = 0usize;
 
     loop {
@@ -117,7 +117,7 @@ fn select(term: &Term, lines: &Vec<String>, revs: &RevLocations) -> Result<usize
                 break;
             },
             Key::Escape => {
-                process::exit(exitcode::UNAVAILABLE);
+                return Ok(None)
             },
             _ => {}
         }
@@ -125,7 +125,7 @@ fn select(term: &Term, lines: &Vec<String>, revs: &RevLocations) -> Result<usize
         term.clear_last_lines(lines.len())?;
     }
 
-    Ok(selected)
+    Ok(Some(selected))
 }
 
 fn run() -> Result<exitcode::ExitCode, Error> {
@@ -150,7 +150,11 @@ fn run() -> Result<exitcode::ExitCode, Error> {
         return Ok(exitcode::OK);
     }
 
-    let selected = select(&Term::stderr(), &lines, &revs)?;
+    let selected = match select(&Term::stderr(), &lines, &revs)? {
+        Some(s) => s,
+        None => process::exit(exitcode::OK)
+    };
+
     if let Some(rev) = revs.get(selected) {
         vcs_.checkout(&rev.el.hash)?;
         Ok(exitcode::OK)
