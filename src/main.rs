@@ -17,7 +17,7 @@ use std::fs::File;
 use std::iter::Iterator;
 use std::process::exit;
 use failure::{err_msg, Error};
-use console::{Term, Key};
+use console::{Key, Term};
 use types::RevLocations;
 use itertools::Itertools;
 use colored::Colorize;
@@ -39,7 +39,11 @@ fn main() {
     }
 }
 
-fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations, selected: Option<&parser::Located<parser::RefLike>>) -> Vec<String> {
+fn highlight_revs<'a>(
+    vlines: &Vec<String>,
+    rls: &RevLocations,
+    selected: Option<&parser::Located<parser::RefLike>>,
+) -> Vec<String> {
     let grouped = rls.iter().group_by(|e| e.line);
     let mut igrouped = grouped.into_iter().peekable();
     let grouped_lines = vlines.iter().enumerate().map(|(vlno, vl)| {
@@ -65,11 +69,7 @@ fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations, selected: Option
 
     // TODO: Another one for immutable.rs.
     grouped_lines.fold(vec![], |mut acc, (original_line, rlocs)| {
-        acc.push(highlight_line(
-            original_line,
-            &rlocs,
-            &selected
-        ));
+        acc.push(highlight_line(original_line, &rlocs, &selected));
         acc
     })
 }
@@ -117,10 +117,8 @@ fn select(term: &Term, lines: &Vec<String>, revs: &RevLocations) -> Result<Optio
             Key::Enter => {
                 term.clear_last_lines(lines.len())?;
                 break;
-            },
-            Key::Escape => {
-                return Ok(None)
-            },
+            }
+            Key::Escape => return Ok(None),
             _ => {}
         }
 
@@ -153,12 +151,16 @@ fn run() -> Result<exitcode::ExitCode, Error> {
 
     let selected = match select(&Term::stderr(), &lines, &revs)? {
         Some(s) => s,
-        None => process::exit(exitcode::OK)
+        None => process::exit(exitcode::OK),
     };
 
     if let Some(rev) = revs.get(selected) {
         vcs_.checkout(&rev.el.hash)?;
-        println!("Checking out revision {} with {} ...", &rev.el.hash, vcs_.name());
+        println!(
+            "Checking out revision {} with {} ...",
+            &rev.el.hash,
+            vcs_.name()
+        );
         Ok(exitcode::OK)
     } else {
         bail!("Selected unavailable rev.")
