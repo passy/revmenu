@@ -47,6 +47,7 @@ pub fn parse_line(ls: &str, row: usize) -> Result<Vec<Located<RefLike>>, Error> 
     while !cls.0.is_empty() {
         match token(cls) {
             Ok((remaining, None)) => {
+                offset += cls.offset(&remaining);
                 cls = remaining;
             }
             Ok((remaining, Some(value))) => {
@@ -124,6 +125,14 @@ mod tests {
         assert_eq!(
             super::parse_line("deadbeef-525-hello-faceb00c", 0).unwrap(),
             vec![mk_located("deadbeef", 0, 0), mk_located("faceb00c", 19, 0)]
+        );
+    }
+
+    #[test]
+    fn test_regression_split_line() {
+        assert_eq!(
+            super::parse_line("   Compiling dialoguer v0.1.0 (https://github.com/mitsuhiko/dialoguer?rev=5f28d3d74768b6ba532866ee3c83df9324f9df06#5f28d3d7)", 0).unwrap(),
+            vec![mk_located("5f28d3d74768b6ba532866ee3c83df9324f9df06", 74, 0), mk_located("5f28d3d7", 115, 0)]
         );
     }
 
