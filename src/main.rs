@@ -68,7 +68,7 @@ fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations, selected: Option
         acc.push(highlight_line(
             original_line,
             &rlocs,
-            selected
+            &selected
         ));
         acc
     })
@@ -76,9 +76,9 @@ fn highlight_revs<'a>(vlines: &Vec<String>, rls: &RevLocations, selected: Option
 
 fn highlight_line(
     str: &str,
-    // FIXME: This type is weird and I don't know why.
+    // FIXME: This type looks weird and I don't know why.
     rls: &Vec<&parser::Located<parser::RefLike>>,
-    selected: Option<&parser::Located<parser::RefLike>>,
+    selected: &Option<&parser::Located<parser::RefLike>>,
 ) -> String {
     let (i, res) = rls.iter().fold((0usize, vec![]), |(i, mut acc), &x| {
         let s = x.el.hash.len();
@@ -86,7 +86,7 @@ fn highlight_line(
 
         acc.push(str[i..x.col].to_string());
         // TODO: Can we make this a closure of the highlighting method instead?
-        if Some(x) == selected {
+        if &Some(x) == selected {
             acc.push(x.el.hash.yellow().to_string());
         } else {
             acc.push(x.el.hash.magenta().to_string());
@@ -97,30 +97,9 @@ fn highlight_line(
     format!("{}{}", res.join(""), &str[i..])
 }
 
-fn run() -> Result<exitcode::ExitCode, Error> {
-    let args = cli::cli().get_matches();
-
-    let file_val = args.value_of("FILE")
-        .ok_or_else(|| err_msg("Expected FILE."))?;
-    let reader: Box<BufRead> = if file_val == "-" {
-        Box::new(BufReader::new(stdin()))
-    } else {
-        let file = File::open(file_val)?;
-        Box::new(BufReader::new(file))
-    };
-    let lines: Vec<String> = reader.lines().filter_map(|f| f.ok()).collect();
-
-    let cwd = std::env::current_dir()?;
-    let vcs_ = vcs::detect_vcs(&cwd)?;
-
-    let revs: RevLocations = parser::parse_lines(lines.iter());
-
-    if revs.len() == 0 {
-        return Ok(exitcode::OK);
-    }
-
+fn select(term: &Term, lines: &Vec<String>, revs: &RevLocations) -> Result<usize, Error> {
     let mut selected = 0usize;
-    let term = Term::stderr();
+
     loop {
         for line in highlight_revs(&lines, &revs, revs.get(selected)) {
             term.write_line(&line)?;
@@ -146,6 +125,32 @@ fn run() -> Result<exitcode::ExitCode, Error> {
         term.clear_last_lines(lines.len())?;
     }
 
+    Ok(selected)
+}
+
+fn run() -> Result<exitcode::ExitCode, Error> {
+    let args = cli::cli().get_matches();
+
+    let file_val = args.value_of("FILE")
+        .ok_or_else(|| err_msg("Expected FILE."))?;
+    let reader: Box<BufRead> = if file_val == "-" {
+        Box::new(BufReader::new(stdin()))
+    } else {
+        let file = File::open(file_val)?;
+        Box::new(BufReader::new(file))
+    };
+    let lines: Vec<String> = reader.lines().filter_map(|f| f.ok()).collect();
+
+    let cwd = std::env::current_dir()?;
+    let vcs_ = vcs::detect_vcs(&cwd)?;
+
+    let revs: RevLocations = parser::parse_lines(lines.iter());
+
+    if revs.len() == 0 {
+        return Ok(exitcode::OK);
+    }
+
+    let selected = select(&Term::stderr(), &lines, &revs)?;
     if let Some(rev) = revs.get(selected) {
         vcs_.checkout(&rev.el.hash)?;
         Ok(exitcode::OK)
