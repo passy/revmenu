@@ -11,9 +11,9 @@ get_tmux_option() {
   fi
 }
 
-readonly key="$(get_tmux_option "@revmenu-key" "R")"
+readonly key="$(get_tmux_option "@fpp-key" "v")"
 
 tmux bind-key "$key" capture-pane -J \\\; \
     save-buffer "${TMPDIR:-/tmp}/tmux-buffer" \\\; \
     delete-buffer \\\; \
-    new-window -n revmenu -c "#{pane_current_path}" "sh -c 'revmenu \"${TMPDIR:-/tmp}/tmux-buffer\"; rm \"${TMPDIR:-/tmp}/tmux-buffer\"'"
+    new-window -n revmenu -c "#{pane_current_path}" "revmenu \"${TMPDIR:-/tmp}/tmux-buffer\""
