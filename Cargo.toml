@@ -1,6 +1,10 @@
 [package]
 authors = ["Pascal Hartig <phartig@rdrei.net>"]
 name = "revmenu"
+description = "Check out git and mercurial revisions from your terminal output"
+repository = "https://github.com/passy/revmenu"
+license = "MIT"
+license-file = "LICENSE"
 version = "0.1.0"
 [dependencies]
 clap = "2.29.4"
