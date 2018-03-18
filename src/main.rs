@@ -8,6 +8,8 @@ extern crate failure;
 extern crate itertools;
 #[macro_use]
 extern crate nom;
+#[macro_use]
+extern crate im;
 
 use std::io::{stderr, stdin, BufRead, BufReader, Write};
 use std::ops::Rem;
