@@ -1,4 +1,4 @@
-# ![revmenu](assets/logo.png)
+# ![revmenu](assets/logo.png) [![crates.io](https://img.shields.io/crates/v/revmenu.svg)](https://crates.io/crates/revmenu)
 
 revmenu can be used with your terminal multiplexer or as stand-alone tool to
 select and check out any hash-like string of characters in the output.
