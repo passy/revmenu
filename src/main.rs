@@ -2,7 +2,6 @@
 extern crate clap;
 extern crate colored;
 extern crate console;
-extern crate dialoguer;
 extern crate exitcode;
 #[macro_use]
 extern crate failure;
