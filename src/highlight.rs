@@ -33,16 +33,16 @@ pub fn revs<'a>(
     });
 
     grouped_lines.fold(list![], |acc, (original_line, rlocs)| {
-        acc.snoc(line(original_line, &rlocs, &selected))
+        acc.snoc(line(original_line, rlocs, &selected))
     })
 }
 
-fn line(
+fn line<'a, I>(
     str: &str,
-    rls: &Vec<&parser::Located<parser::RefLike>>,
+    rls: I,
     selected: &Option<&parser::Located<parser::RefLike>>,
-) -> String {
-    let (i, res) = rls.iter().fold((0usize, list![]), |(i, acc), &x| {
+) -> String where I: IntoIterator<Item = &'a parser::Located<parser::RefLike>> {
+    let (i, res) = rls.into_iter().fold((0usize, list![]), |(i, acc), x| {
         let s = x.el.hash.len();
         let j = x.col + s;
 
