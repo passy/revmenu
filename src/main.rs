@@ -5,7 +5,6 @@ extern crate console;
 extern crate exitcode;
 #[macro_use]
 extern crate failure;
-extern crate im;
 extern crate itertools;
 #[macro_use]
 extern crate nom;
