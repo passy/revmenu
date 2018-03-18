@@ -2,12 +2,14 @@ use itertools::Itertools;
 use colored::Colorize;
 use types::RevLocations;
 use parser;
+use im::List;
+use im::list;
 
 pub fn revs<'a>(
     vlines: &Vec<String>,
     rls: &RevLocations,
     selected: Option<&parser::Located<parser::RefLike>>,
-) -> Vec<String> {
+) -> List<String> {
     let grouped = rls.iter().group_by(|e| e.line);
     let mut igrouped = grouped.into_iter().peekable();
     let grouped_lines = vlines.iter().enumerate().map(|(vlno, vl)| {
@@ -31,10 +33,8 @@ pub fn revs<'a>(
         }
     });
 
-    // TODO: Another one for immutable.rs.
-    grouped_lines.fold(vec![], |mut acc, (original_line, rlocs)| {
-        acc.push(line(original_line, &rlocs, &selected));
-        acc
+    grouped_lines.fold(List::new(), |acc, (original_line, rlocs)| {
+        list::cons(line(original_line, &rlocs, &selected), acc)
     })
 }
 
