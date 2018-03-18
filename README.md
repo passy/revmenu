@@ -10,6 +10,12 @@ select and check out any hash-like string of characters in the output.
 This is best used when combined with a terminal multiplexer. For tmux,
 there is a [plugin available](https://github.com/passy/tmux-revmenu).
 
+Install via tpm:
+
+```tmux
+set -g @plugin 'passy/tmux-revmenu'
+```
+
 ![demo gif](assets/demo.gif)
 
 ### Manual Usage
