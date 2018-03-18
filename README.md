@@ -1,12 +1,30 @@
-# ![](assets/logo.png)
+# ![revmenu](assets/logo.png)
 
-revmenu is used best in combination with tmux to select and jump to revisions
-that appear somewhere in your terminal buffer.
+revmenu can be used with your terminal multiplexer or as stand-alone tool to
+select and check out any hash-like string of characters in the output.
 
-![](assets/demo.gif)
+## Usage
+
+This is best used when combined with a terminal multiplexer. For tmux,
+there is a [plugin available](https://github.com/passy/tmux-revmenu).
+
+![demo gif](assets/demo.gif)
+
+### Manual Usage
+
+`revmenu` can read from files and from stdin by passing `-` instead of
+a filename.
+
+```
+$ git log | head -n 20 | revmenu -
+```
 
 ## Installation
 
-```
+```bash
 $ cargo install revmenu
 ```
+
+## License
+
+[MIT](LICENSE)
