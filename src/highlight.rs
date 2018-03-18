@@ -42,11 +42,10 @@ fn line(
     rls: &Vec<&parser::Located<parser::RefLike>>,
     selected: &Option<&parser::Located<parser::RefLike>>,
 ) -> String {
-    let (i, res) = rls.iter().fold((0usize, vec![]), |(i, mut acc), &x| {
+    let (i, res) = rls.iter().fold((0usize, list![]), |(i, acc), &x| {
         let s = x.el.hash.len();
         let j = x.col + s;
 
-        acc.push(str[i..x.col].to_string());
         // TODO: Can we make this a closure of the highlighting method instead?
         let el = if &Some(x) == selected {
             x.el.hash.yellow().to_string()
@@ -54,12 +53,10 @@ fn line(
             x.el.hash.magenta().to_string()
         };
 
-        // TODO: Use immutable.rs. This is gross.
-        acc.push(el);
-        (j, acc)
+        (j, acc.snoc(str[i..x.col].to_string()).snoc(el))
     });
 
-    format!("{}{}", res.join(""), &str[i..])
+    format!("{}{}", res.iter().join(""), &str[i..])
 }
 
 #[cfg(test)]
