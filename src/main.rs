@@ -81,15 +81,26 @@ fn run() -> Result<exitcode::ExitCode, Error> {
     };
 
     let lines: Vec<String> = reader.lines().filter_map(|f| f.ok()).collect();
+    let term = Term::stderr();
+
+    // If we can get the terminal size, truncate to the last (h - 1) lines.
+    // (-1) because tmux inserts an annoying newline which we cannot avoid.
+    let truncated_lines = match term.size_checked() {
+        Some((h, _w)) => {
+            lines[(lines.len() - ((h - 1) as usize))..lines.len() - 1].into()
+        },
+        None => lines
+    };
+
     let cwd = std::env::current_dir()?;
     let vcs_ = vcs::detect_vcs(&cwd)?;
-    let revs: RevLocations = parser::parse_lines(lines.iter());
+    let revs: RevLocations = parser::parse_lines(truncated_lines.iter());
 
     if revs.len() == 0 {
         return Ok(exitcode::OK);
     }
 
-    let selected = match select(&Term::stderr(), &lines, &revs)? {
+    let selected = match select(&term, &truncated_lines, &revs)? {
         Some(s) => s,
         None => process::exit(exitcode::OK),
     };
