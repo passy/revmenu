@@ -96,7 +96,7 @@ fn run() -> Result<exitcode::ExitCode, Error> {
     let vcs_ = vcs::detect_vcs(&cwd)?;
     let revs: RevLocations = parser::parse_lines(truncated_lines.iter());
 
-    if revs.len() == 0 {
+    if revs.is_empty() {
         return Ok(exitcode::OK);
     }
 
