@@ -87,7 +87,7 @@ fn run() -> Result<exitcode::ExitCode, Error> {
     // (-1) because tmux inserts an annoying newline which we cannot avoid.
     let truncated_lines = match term.size_checked() {
         Some((h, _w)) => {
-            lines[(lines.len() - ((h - 1) as usize))..lines.len() - 1].into()
+            lines[(lines.len() - (h as usize))..lines.len() - 1].into()
         },
         None => lines
     };
