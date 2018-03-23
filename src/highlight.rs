@@ -13,11 +13,7 @@ pub fn revs<'a>(
     let mut igrouped = grouped.into_iter().peekable();
     let grouped_lines = vlines.iter().enumerate().map(|(vlno, vl)| {
         let matched = if let Some(&(lno, ref _ls)) = igrouped.peek() {
-            if lno == vlno {
-                true
-            } else {
-                false
-            }
+            lno == vlno
         } else {
             false
         };
