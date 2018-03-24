@@ -12,6 +12,7 @@ pub trait VCS {
     fn checkout(&self, rev: &str) -> Result<(), Error>;
 }
 
+#[allow(type_complexity)]
 static SUPPORTED_VCS: [fn(&Path) -> Option<Box<VCS>>; 2] = [Git::new, Hg::new];
 
 pub fn detect_vcs(path: &Path) -> Result<Box<VCS>, Error> {
