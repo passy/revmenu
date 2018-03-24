@@ -1,12 +1,12 @@
 use itertools::Itertools;
 use colored::Colorize;
-use types::RevLocations;
+use types::RevLocation;
 use im::List;
 use parser;
 
 pub fn revs<'a>(
-    vlines: &Vec<String>,
-    rls: &RevLocations,
+    vlines: &[String],
+    rls: &[RevLocation],
     selected: Option<&parser::Located<parser::RefLike>>,
 ) -> List<String> {
     let grouped = rls.iter().group_by(|e| e.line);
@@ -36,7 +36,7 @@ pub fn revs<'a>(
 fn line<'a, I>(
     str: &str,
     rls: I,
-    selected: &Option<&parser::Located<parser::RefLike>>,
+    selected: &Option<&RevLocation>,
 ) -> String where I: IntoIterator<Item = &'a parser::Located<parser::RefLike>> {
     let (i, res) = rls.into_iter().fold((0usize, list![]), |(i, acc), x| {
         let s = x.el.hash.len();

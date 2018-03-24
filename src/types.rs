@@ -1,3 +1,4 @@
 use parser;
 
-pub type RevLocations = Vec<parser::Located<parser::RefLike>>;
+pub type RevLocation = parser::Located<parser::RefLike>;
+pub type RevLocations = Vec<RevLocation>;
