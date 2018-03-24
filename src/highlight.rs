@@ -38,7 +38,7 @@ fn line<'a, I>(
     rls: I,
     selected: &Option<&RevLocation>,
 ) -> String where I: IntoIterator<Item = &'a parser::Located<parser::RefLike>> {
-    let (i, res) = rls.into_iter().fold((0usize, list![]), |(i, acc), x| {
+    let (i, res) = rls.into_iter().fold((0_usize, list![]), |(i, acc), x| {
         let s = x.el.hash.len();
         let j = x.col + s;
 

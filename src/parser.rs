@@ -41,7 +41,7 @@ named!(
 pub fn parse_line(ls: &str, row: usize) -> Result<Vec<Located<RefLike>>, Error> {
     // Holy mutable son of satan, this needs a refactor.
     let mut tokens: Vec<Located<RefLike>> = vec![];
-    let mut offset: usize = 0usize;
+    let mut offset: usize = 0_usize;
     let mut cls = CompleteStr(ls);
 
     while !cls.0.is_empty() {

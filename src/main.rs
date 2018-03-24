@@ -7,6 +7,7 @@
 // https://github.com/rust-lang/rust/issues/23416.
 #![warn(missing_copy_implementations,
         missing_debug_implementations,
+        trivial_casts,
         trivial_numeric_casts,
         unsafe_code,
         unused_extern_crates,
@@ -40,7 +41,6 @@ use std::ops::Rem;
 use std::process;
 use std::fs::File;
 use std::iter::Iterator;
-use std::process::exit;
 use failure::{err_msg, Error};
 use console::{Key, Term};
 use types::RevLocation;
@@ -57,14 +57,14 @@ fn main() {
             let stderr = &mut stderr();
             let errmsg = "Error writing to stderr.";
             writeln!(stderr, "{}", e).expect(errmsg);
-            exit(1)
+            process::exit(1)
         }
-        Ok(r) => exit(r),
+        Ok(r) => process::exit(r),
     }
 }
 
 fn select(term: &Term, lines: &[String], revs: &[RevLocation]) -> Result<Option<usize>, Error> {
-    let mut selected = 0usize;
+    let mut selected = 0_usize;
 
     loop {
         for line in highlight::revs(lines, revs, revs.get(selected)) {
