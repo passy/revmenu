@@ -108,7 +108,6 @@ fn run() -> Result<exitcode::ExitCode, Error> {
     let term = Term::stderr();
 
     // If we can get the terminal size, truncate to the last (h - 1) lines.
-    // (-1) because tmux inserts an annoying newline which we cannot avoid.
     let truncated_lines = match term.size_checked() {
         Some((h, _w)) => {
             let len = lines.len();
