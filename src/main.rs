@@ -43,7 +43,7 @@ fn select(term: &Term, lines: &[String], revs: &[RevLocation]) -> Result<Option<
     let mut selected = 0usize;
 
     loop {
-        for line in highlight::revs(&lines, &revs, revs.get(selected)) {
+        for line in highlight::revs(lines, revs, revs.get(selected)) {
             term.write_line(&line)?;
         }
 
