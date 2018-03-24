@@ -89,7 +89,7 @@ where
 {
     lines
         .enumerate()
-        .filter_map(|(lineno, line)| parse_line(&line, lineno).ok())
+        .filter_map(|(lineno, line)| parse_line(line, lineno).ok())
         .flat_map(|a| a)
         .collect()
 }
