@@ -19,7 +19,7 @@ use std::iter::Iterator;
 use std::process::exit;
 use failure::{err_msg, Error};
 use console::{Key, Term};
-use types::RevLocations;
+use types::RevLocation;
 
 mod cli;
 mod parser;
@@ -39,7 +39,7 @@ fn main() {
     }
 }
 
-fn select(term: &Term, lines: &Vec<String>, revs: &RevLocations) -> Result<Option<usize>, Error> {
+fn select(term: &Term, lines: &[String], revs: &[RevLocation]) -> Result<Option<usize>, Error> {
     let mut selected = 0usize;
 
     loop {
@@ -97,7 +97,7 @@ fn run() -> Result<exitcode::ExitCode, Error> {
 
     let cwd = std::env::current_dir()?;
     let vcs_ = vcs::detect_vcs(&cwd)?;
-    let revs: RevLocations = parser::parse_lines(truncated_lines.iter());
+    let revs: Vec<RevLocation> = parser::parse_lines(truncated_lines.iter());
 
     if revs.is_empty() {
         return Ok(exitcode::OK);
