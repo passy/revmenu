@@ -7,7 +7,7 @@ use parser;
 pub fn revs(
     vlines: &[String],
     rls: &[RevLocation],
-    selected: Option<&parser::Located<parser::RefLike>>,
+    selected: &Option<&parser::Located<parser::RefLike>>,
 ) -> List<String> {
     let grouped = rls.iter().group_by(|e| e.line);
     let mut igrouped = grouped.into_iter().peekable();
@@ -29,7 +29,7 @@ pub fn revs(
     });
 
     grouped_lines.fold(list![], |acc, (original_line, rlocs)| {
-        acc.snoc(line(original_line, rlocs, &selected))
+        acc.snoc(line(original_line, rlocs, selected))
     })
 }
 
