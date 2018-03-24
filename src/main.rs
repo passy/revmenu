@@ -1,3 +1,27 @@
+// Enable clippy if our Cargo.toml file asked us to do so.
+#![cfg_attr(feature="clippy", feature(plugin))]
+#![cfg_attr(feature="clippy", plugin(clippy))]
+
+// Enable as many useful Rust and Clippy warnings as we can stand.  We'd
+// also enable `trivial_casts`, but we're waiting for
+// https://github.com/rust-lang/rust/issues/23416.
+#![warn(missing_copy_implementations,
+        missing_debug_implementations,
+        trivial_numeric_casts,
+        unsafe_code,
+        unused_extern_crates,
+        unused_import_braces,
+        unused_qualifications)]
+#![cfg_attr(feature="clippy", warn(cast_possible_wrap))]
+#![cfg_attr(feature="clippy", warn(cast_precision_loss))]
+#![cfg_attr(feature="clippy", warn(mut_mut))]
+// This allows us to use `unwrap` on `Option` values (because doing makes
+// working with Regex matches much nicer) and when compiling in test mode
+// (because using it in tests is idiomatic).
+#![cfg_attr(all(not(test), feature="clippy"), warn(result_unwrap_used))]
+#![cfg_attr(feature="clippy", warn(unseparated_literal_suffix))]
+#![cfg_attr(feature="clippy", warn(wrong_pub_self_convention))]
+
 #[macro_use]
 extern crate clap;
 extern crate colored;

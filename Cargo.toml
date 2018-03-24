@@ -6,7 +6,12 @@ repository = "https://github.com/passy/revmenu"
 license = "MIT"
 version = "0.1.0"
 readme = "README.md"
+
+[features]
+unstable = ["clippy"]
+
 [dependencies]
+clippy = { version = "0.0.*", optional = true }
 clap = "2.29.4"
 console = "0.6.1"
 exitcode = "1.1.2"
