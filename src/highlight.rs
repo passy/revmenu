@@ -4,7 +4,7 @@ use types::RevLocation;
 use im::List;
 use parser;
 
-pub fn revs<'a>(
+pub fn revs(
     vlines: &[String],
     rls: &[RevLocation],
     selected: Option<&parser::Located<parser::RefLike>>,
