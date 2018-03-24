@@ -129,7 +129,7 @@ fn run() -> Result<exitcode::ExitCode, Error> {
 
     let selected = match select(&term, &truncated_lines, &revs)? {
         Some(s) => s,
-        None => process::exit(exitcode::OK),
+        None => return Ok(exitcode::OK),
     };
 
     if let Some(rev) = revs.get(selected) {
