@@ -4,7 +4,7 @@ name = "revmenu"
 description = "Check out git and mercurial revisions from your terminal output"
 repository = "https://github.com/passy/revmenu"
 license = "MIT"
-version = "0.1.0"
+version = "0.1.1"
 readme = "README.md"
 
 [features]
