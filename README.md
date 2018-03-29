@@ -1,4 +1,4 @@
-# ![revmenu](assets/logo.png)
+# ![revmenu](https://raw.githubusercontent.com/passy/revmenu/master/assets/logo.png)
 
 [![crates.io](https://img.shields.io/crates/v/revmenu.svg)](https://crates.io/crates/revmenu)
 [![Build Status](https://travis-ci.org/passy/revmenu.svg?branch=master)](https://travis-ci.org/passy/revmenu)
@@ -17,7 +17,7 @@ Install via tpm:
 set -g @plugin 'passy/tmux-revmenu'
 ```
 
-![demo gif](assets/demo.gif)
+![demo gif](https://raw.githubusercontent.com/passy/revmenu/master/assets/demo.gif)
 
 ### Manual Usage
 

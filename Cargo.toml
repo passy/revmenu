@@ -5,6 +5,8 @@ description = "Check out git and mercurial revisions from your terminal output"
 repository = "https://github.com/passy/revmenu"
 license = "MIT"
 version = "0.1.1"
+keywords = ["terminal", "git", "mercurial"]
+categories = ["command-line-interface"]
 readme = "README.md"
 
 [features]
@@ -20,3 +22,6 @@ nom = "4.0.0-beta2"
 itertools = "0.7.7"
 colored = "1.6.0"
 im = "9.0.0"
+
+[badges]
+travis-ci = { repository = "passy/revmenu" }
