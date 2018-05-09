@@ -1,14 +1,14 @@
 use itertools::Itertools;
 use colored::Colorize;
 use types::RevLocation;
-use im::List;
+use im::CatList;
 use parser;
 
 pub fn revs(
     vlines: &[String],
     rls: &[RevLocation],
     selected: &Option<&parser::Located<parser::RefLike>>,
-) -> List<String> {
+) -> CatList<String> {
     let grouped = rls.iter().group_by(|e| e.line);
     let mut igrouped = grouped.into_iter().peekable();
     let grouped_lines = vlines.iter().enumerate().map(|(vlno, vl)| {
@@ -28,7 +28,7 @@ pub fn revs(
         }
     });
 
-    grouped_lines.fold(list![], |acc, (original_line, rlocs)| {
+    grouped_lines.fold(catlist![], |acc, (original_line, rlocs)| {
         acc.snoc(line(original_line, rlocs, selected))
     })
 }
@@ -38,7 +38,7 @@ fn line<'a, I>(
     rls: I,
     selected: &Option<&RevLocation>,
 ) -> String where I: IntoIterator<Item = &'a parser::Located<parser::RefLike>> {
-    let (i, res) = rls.into_iter().fold((0_usize, list![]), |(i, acc), x| {
+    let (i, res) = rls.into_iter().fold((0_usize, catlist![]), |(i, acc), x| {
         let s = x.el.hash.len();
         let j = x.col + s;
 
