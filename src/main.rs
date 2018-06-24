@@ -12,8 +12,10 @@
         unsafe_code,
         unused_extern_crates,
         unused_import_braces,
-        bare_trait_objects,
         unused_qualifications)]
+#![deny(bare_trait_objects,
+        anonymous_parameters,
+)]
 #![cfg_attr(feature="clippy", warn(cast_possible_wrap))]
 #![cfg_attr(feature="clippy", warn(cast_precision_loss))]
 #![cfg_attr(feature="clippy", warn(mut_mut))]
