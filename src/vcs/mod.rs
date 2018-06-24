@@ -12,9 +12,9 @@ pub trait VCS {
     fn checkout(&self, rev: &str) -> Result<(), Error>;
 }
 
-static SUPPORTED_VCS: [fn(&Path) -> Option<Box<VCS>>; 2] = [Git::new, Hg::new];
+static SUPPORTED_VCS: [fn(&Path) -> Option<Box<dyn VCS>>; 2] = [Git::new, Hg::new];
 
-pub fn detect_vcs(path: &Path) -> Result<Box<VCS>, Error> {
+pub fn detect_vcs(path: &Path) -> Result<Box<dyn VCS>, Error> {
     let mut pathbuf = path.to_path_buf();
 
     loop {

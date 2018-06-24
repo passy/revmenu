@@ -13,7 +13,7 @@ impl Hg {
     /// Create a new instance of the `Hg` VCS impl based
     /// on the passed in root. Will succeed if the given
     /// root contains a root that contains a `.hg` directory.
-    pub fn new(root: &Path) -> Option<Box<VCS>> {
+    pub fn new(root: &Path) -> Option<Box<dyn VCS>> {
         if root.join(".hg").exists() {
             Some(Box::new(Hg {
                 root: root.to_path_buf(),

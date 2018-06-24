@@ -12,6 +12,7 @@
         unsafe_code,
         unused_extern_crates,
         unused_import_braces,
+        bare_trait_objects,
         unused_qualifications)]
 #![cfg_attr(feature="clippy", warn(cast_possible_wrap))]
 #![cfg_attr(feature="clippy", warn(cast_precision_loss))]
@@ -97,7 +98,7 @@ fn run() -> Result<exitcode::ExitCode, Error> {
 
     let file_val = args.value_of("FILE")
         .ok_or_else(|| err_msg("Expected FILE."))?;
-    let reader: Box<BufRead> = if file_val == "-" {
+    let reader: Box<dyn BufRead> = if file_val == "-" {
         Box::new(BufReader::new(stdin()))
     } else {
         let file = File::open(file_val)?;
