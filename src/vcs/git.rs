@@ -1,6 +1,6 @@
 use super::VCS;
 
-use failure::Error;
+use failure::{bail, Error};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 

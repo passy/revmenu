@@ -26,15 +26,13 @@
 #![cfg_attr(feature = "clippy", warn(wrong_pub_self_convention))]
 
 #[macro_use]
-extern crate failure;
-#[macro_use]
 extern crate nom;
 #[macro_use]
 extern crate im;
 
 use crate::types::RevLocation;
 use console::{Key, Term};
-use failure::{err_msg, Error};
+use failure::{bail, err_msg, Error};
 use std::fs::File;
 use std::io::{stderr, stdin, BufRead, BufReader, Write};
 use std::iter::Iterator;

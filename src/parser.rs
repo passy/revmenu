@@ -1,4 +1,4 @@
-use failure::Error;
+use failure::{bail, Error};
 use nom::types::CompleteStr;
 use nom::{hex_digit, is_hex_digit, Err, Offset};
 
