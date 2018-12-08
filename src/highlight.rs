@@ -1,8 +1,8 @@
 use itertools::Itertools;
 use colored::Colorize;
-use types::RevLocation;
+use crate::types::RevLocation;
 use im::CatList;
-use parser;
+use crate::parser;
 
 pub fn revs(
     vlines: &[String],
@@ -57,7 +57,7 @@ fn line<'a, I>(
 
 #[cfg(test)]
 mod tests {
-    use parser;
+    use crate::parser;
 
     fn mk_located(hash: &str, col: usize) -> parser::Located<parser::RefLike> {
         parser::Located {

@@ -46,7 +46,7 @@ use std::fs::File;
 use std::iter::Iterator;
 use failure::{err_msg, Error};
 use console::{Key, Term};
-use types::RevLocation;
+use crate::types::RevLocation;
 
 mod cli;
 mod parser;
