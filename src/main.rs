@@ -26,13 +26,7 @@
 #![cfg_attr(feature = "clippy", warn(wrong_pub_self_convention))]
 
 #[macro_use]
-extern crate clap;
-extern crate colored;
-extern crate console;
-extern crate exitcode;
-#[macro_use]
 extern crate failure;
-extern crate itertools;
 #[macro_use]
 extern crate nom;
 #[macro_use]
