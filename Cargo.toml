@@ -23,6 +23,7 @@ nom = "4.0.0"
 itertools = "0.7.7"
 colored = "1.6.0"
 im = "10.2.0"
+human-panic = "1.0.1"
 
 [badges]
 travis-ci = { repository = "passy/revmenu" }

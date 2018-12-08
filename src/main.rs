@@ -28,6 +28,7 @@
 use crate::types::RevLocation;
 use console::{Key, Term};
 use failure::{bail, err_msg, Error};
+use human_panic::setup_panic;
 use std::fs::File;
 use std::io::{stderr, stdin, BufRead, BufReader, Write};
 use std::iter::Iterator;
@@ -41,6 +42,7 @@ mod types;
 mod vcs;
 
 fn main() {
+    setup_panic!();
     match run() {
         Err(e) => {
             let stderr = &mut stderr();
