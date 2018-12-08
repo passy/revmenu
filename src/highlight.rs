@@ -1,7 +1,7 @@
 use crate::parser;
 use crate::types::RevLocation;
 use colored::Colorize;
-use im::CatList;
+use im::{catlist, CatList};
 use itertools::Itertools;
 
 pub fn revs(

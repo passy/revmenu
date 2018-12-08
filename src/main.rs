@@ -25,9 +25,6 @@
 #![cfg_attr(feature = "clippy", warn(unseparated_literal_suffix))]
 #![cfg_attr(feature = "clippy", warn(wrong_pub_self_convention))]
 
-#[macro_use]
-extern crate im;
-
 use crate::types::RevLocation;
 use console::{Key, Term};
 use failure::{bail, err_msg, Error};
