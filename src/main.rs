@@ -26,8 +26,6 @@
 #![cfg_attr(feature = "clippy", warn(wrong_pub_self_convention))]
 
 #[macro_use]
-extern crate nom;
-#[macro_use]
 extern crate im;
 
 use crate::types::RevLocation;

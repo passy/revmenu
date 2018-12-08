@@ -1,6 +1,9 @@
 use failure::{bail, Error};
 use nom::types::CompleteStr;
-use nom::{hex_digit, is_hex_digit, Err, Offset};
+use nom::{
+    alt, call, eof, error_position, hex_digit, is_hex_digit, named, opt, take_while, terminated,
+    tuple, tuple_parser, Err, Offset,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct RefLike {
