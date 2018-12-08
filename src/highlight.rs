@@ -63,8 +63,8 @@ mod tests {
             el: parser::RefLike {
                 hash: hash.to_string(),
             },
-            col: col,
             line: 0,
+            col,
         }
     }
 

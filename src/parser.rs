@@ -105,8 +105,8 @@ mod tests {
             el: super::RefLike {
                 hash: hash.to_string(),
             },
-            col: col,
-            line: line,
+            col,
+            line,
         }
     }
 
