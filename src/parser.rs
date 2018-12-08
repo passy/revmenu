@@ -1,6 +1,6 @@
-use nom::{hex_digit, is_hex_digit, Err, Offset};
-use nom::types::CompleteStr;
 use failure::Error;
+use nom::types::CompleteStr;
+use nom::{hex_digit, is_hex_digit, Err, Offset};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct RefLike {

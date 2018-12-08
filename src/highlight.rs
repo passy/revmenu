@@ -1,8 +1,8 @@
-use itertools::Itertools;
-use colored::Colorize;
-use crate::types::RevLocation;
-use im::CatList;
 use crate::parser;
+use crate::types::RevLocation;
+use colored::Colorize;
+use im::CatList;
+use itertools::Itertools;
 
 pub fn revs(
     vlines: &[String],
@@ -33,11 +33,10 @@ pub fn revs(
     })
 }
 
-fn line<'a, I>(
-    str: &str,
-    rls: I,
-    selected: &Option<&RevLocation>,
-) -> String where I: IntoIterator<Item = &'a parser::Located<parser::RefLike>> {
+fn line<'a, I>(str: &str, rls: I, selected: &Option<&RevLocation>) -> String
+where
+    I: IntoIterator<Item = &'a parser::Located<parser::RefLike>>,
+{
     let (i, res) = rls.into_iter().fold((0_usize, catlist![]), |(i, acc), x| {
         let s = x.el.hash.len();
         let j = x.col + s;
@@ -93,9 +92,6 @@ mod tests {
     fn test_highlight_nothing() {
         let testline = "deadbeef-525-hello-faceb00c";
         let revs = vec![];
-        assert_eq!(
-            super::line(&testline, &revs, &None),
-            testline
-        );
+        assert_eq!(super::line(&testline, &revs, &None), testline);
     }
 }

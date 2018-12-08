@@ -1,30 +1,29 @@
 // Enable clippy if our Cargo.toml file asked us to do so.
-#![cfg_attr(feature="clippy", feature(plugin))]
-#![cfg_attr(feature="clippy", plugin(clippy))]
-
+#![cfg_attr(feature = "clippy", feature(plugin))]
+#![cfg_attr(feature = "clippy", plugin(clippy))]
 // Enable as many useful Rust and Clippy warnings as we can stand.  We'd
 // also enable `trivial_casts`, but we're waiting for
 // https://github.com/rust-lang/rust/issues/23416.
-#![warn(missing_copy_implementations,
-        missing_debug_implementations,
-        trivial_casts,
-        trivial_numeric_casts,
-        unsafe_code,
-        unused_extern_crates,
-        unused_import_braces,
-        unused_qualifications)]
-#![deny(bare_trait_objects,
-        anonymous_parameters,
+#![warn(
+    missing_copy_implementations,
+    missing_debug_implementations,
+    trivial_casts,
+    trivial_numeric_casts,
+    unsafe_code,
+    unused_extern_crates,
+    unused_import_braces,
+    unused_qualifications
 )]
-#![cfg_attr(feature="clippy", warn(cast_possible_wrap))]
-#![cfg_attr(feature="clippy", warn(cast_precision_loss))]
-#![cfg_attr(feature="clippy", warn(mut_mut))]
+#![deny(bare_trait_objects, anonymous_parameters)]
+#![cfg_attr(feature = "clippy", warn(cast_possible_wrap))]
+#![cfg_attr(feature = "clippy", warn(cast_precision_loss))]
+#![cfg_attr(feature = "clippy", warn(mut_mut))]
 // This allows us to use `unwrap` on `Option` values (because doing makes
 // working with Regex matches much nicer) and when compiling in test mode
 // (because using it in tests is idiomatic).
-#![cfg_attr(all(not(test), feature="clippy"), warn(result_unwrap_used))]
-#![cfg_attr(feature="clippy", warn(unseparated_literal_suffix))]
-#![cfg_attr(feature="clippy", warn(wrong_pub_self_convention))]
+#![cfg_attr(all(not(test), feature = "clippy"), warn(result_unwrap_used))]
+#![cfg_attr(feature = "clippy", warn(unseparated_literal_suffix))]
+#![cfg_attr(feature = "clippy", warn(wrong_pub_self_convention))]
 
 #[macro_use]
 extern crate clap;
@@ -39,20 +38,20 @@ extern crate nom;
 #[macro_use]
 extern crate im;
 
+use crate::types::RevLocation;
+use console::{Key, Term};
+use failure::{err_msg, Error};
+use std::fs::File;
 use std::io::{stderr, stdin, BufRead, BufReader, Write};
+use std::iter::Iterator;
 use std::ops::Rem;
 use std::process;
-use std::fs::File;
-use std::iter::Iterator;
-use failure::{err_msg, Error};
-use console::{Key, Term};
-use crate::types::RevLocation;
 
 mod cli;
-mod parser;
-mod vcs;
-mod types;
 mod highlight;
+mod parser;
+mod types;
+mod vcs;
 
 fn main() {
     match run() {
@@ -98,7 +97,8 @@ fn select(term: &Term, lines: &[String], revs: &[RevLocation]) -> Result<Option<
 fn run() -> Result<exitcode::ExitCode, Error> {
     let args = cli::cli().get_matches();
 
-    let file_val = args.value_of("FILE")
+    let file_val = args
+        .value_of("FILE")
         .ok_or_else(|| err_msg("Expected FILE."))?;
     let reader: Box<dyn BufRead> = if file_val == "-" {
         Box::new(BufReader::new(stdin()))
@@ -117,8 +117,8 @@ fn run() -> Result<exitcode::ExitCode, Error> {
             let start = len - std::cmp::min(h as usize, len);
             let end = std::cmp::max(len - 1, start);
             lines[start..end].into()
-        },
-        None => lines
+        }
+        None => lines,
     };
 
     let cwd = std::env::current_dir()?;

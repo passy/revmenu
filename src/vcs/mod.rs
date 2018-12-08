@@ -1,8 +1,8 @@
 mod git;
 mod hg;
 
-use std::path::Path;
 use failure::{err_msg, Error};
+use std::path::Path;
 
 use self::git::Git;
 use self::hg::Hg;
