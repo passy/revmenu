@@ -16,7 +16,7 @@ unstable = ["clippy"]
 [dependencies]
 clippy = { version = "0.0.*", optional = true }
 clap = "2.29.4"
-console = "0.6.1"
+console = "0.7.3"
 exitcode = "1.1.2"
 failure = "0.1.1"
 nom = "4.1.1"
