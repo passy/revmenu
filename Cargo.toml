@@ -22,7 +22,7 @@ failure = "0.1.1"
 nom = "4.2.1"
 itertools = "0.8.0"
 colored = "1.6.1"
-im = "10.2.0"
+im = "12.3.2"
 human-panic = "1.0.1"
 
 [badges]
