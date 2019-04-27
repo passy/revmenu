@@ -13,6 +13,7 @@ impl Hg {
     /// Create a new instance of the `Hg` VCS impl based
     /// on the passed in root. Will succeed if the given
     /// root contains a root that contains a `.hg` directory.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(root: &Path) -> Option<Box<dyn VCS>> {
         if root.join(".hg").exists() {
             Some(Box::new(Hg {

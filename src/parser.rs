@@ -1,8 +1,7 @@
 use failure::{bail, Error};
 use nom::types::CompleteStr;
 use nom::{
-    alt, call, eof, error_position, hex_digit, is_hex_digit, named, opt, take_while, terminated,
-    tuple, tuple_parser, Err, Offset,
+    alt, eof, hex_digit, is_hex_digit, named, opt, take_while, terminated, Err, Offset,
 };
 
 #[derive(Debug, PartialEq, Eq)]
@@ -82,7 +81,7 @@ where
 {
     // Pretty sure that this is a terrible idea, but I don't feel like
     // rewriting my tests right now.
-    let lines: Vec<_> = reader.lines().filter_map(|l| l.ok()).collect();
+    let lines: Vec<_> = reader.lines().filter_map(Result::ok).collect();
     parse_lines(lines.iter())
 }
 

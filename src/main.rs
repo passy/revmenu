@@ -96,7 +96,7 @@ fn run() -> Result<exitcode::ExitCode, Error> {
         Box::new(BufReader::new(file))
     };
 
-    let lines: Vec<String> = reader.lines().filter_map(|f| f.ok()).collect();
+    let lines: Vec<String> = reader.lines().filter_map(Result::ok).collect();
     let term = Term::stderr();
 
     // If we can get the terminal size, truncate to the last (h - 1) lines.

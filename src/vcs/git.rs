@@ -13,6 +13,8 @@ impl Git {
     /// Create a new instance of the `Git` VCS impl based
     /// on the passed in root. Will succeed if the given
     /// root contains a root that contains a `.git` directory.
+    // TODO: Learn what the idiomatic name for this kind of function is.
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(root: &Path) -> Option<Box<dyn VCS>> {
         if root.join(".git").exists() {
             Some(Box::new(Git {

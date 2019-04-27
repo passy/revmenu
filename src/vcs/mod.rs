@@ -12,6 +12,7 @@ pub trait VCS {
     fn checkout(&self, rev: &str) -> Result<(), Error>;
 }
 
+#[allow(clippy::type_complexity)]
 static SUPPORTED_VCS: [fn(&Path) -> Option<Box<dyn VCS>>; 2] = [Git::new, Hg::new];
 
 pub fn detect_vcs(path: &Path) -> Result<Box<dyn VCS>, Error> {
@@ -21,7 +22,7 @@ pub fn detect_vcs(path: &Path) -> Result<Box<dyn VCS>, Error> {
         if let Some(v) = SUPPORTED_VCS
             .iter()
             .map(|f| f(&pathbuf))
-            .find(|v| v.is_some())
+            .find(Option::is_some)
             .and_then(|a| a)
         {
             return Ok(v);
