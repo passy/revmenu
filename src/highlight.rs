@@ -29,11 +29,11 @@ pub fn revs(
     });
 
     grouped_lines.fold(catlist![], |acc, (original_line, rlocs)| {
-        acc.snoc(line(original_line, rlocs, selected))
+        acc.snoc(line(original_line, rlocs, *selected))
     })
 }
 
-fn line<'a, I>(str: &str, rls: I, selected: &Option<&RevLocation>) -> String
+fn line<'a, I>(str: &str, rls: I, selected: Option<&RevLocation>) -> String
 where
     I: IntoIterator<Item = &'a parser::Located<parser::RefLike>>,
 {
@@ -42,7 +42,7 @@ where
         let j = x.col + s;
 
         // TODO: Can we make this a closure of the highlighting method instead?
-        let el = if &Some(x) == selected {
+        let el = if Some(x) == selected {
             x.el.hash.yellow().to_string()
         } else {
             x.el.hash.magenta().to_string()
@@ -73,7 +73,7 @@ mod tests {
         let testline = "deadbeef-525-hello-faceb00c";
         let revs = vec![mk_located("deadbeef", 0), mk_located("faceb00c", 19)];
         assert_eq!(
-            super::line(&testline, &revs, &None),
+            super::line(&testline, &revs, None),
             "\u{1b}[35mdeadbeef\u{1b}[0m-525-hello-\u{1b}[35mfaceb00c\u{1b}[0m"
         );
     }
@@ -83,7 +83,7 @@ mod tests {
         let testline = "deadbeef-525-hello-faceb00c";
         let revs = vec![mk_located("deadbeef", 0), mk_located("faceb00c", 19)];
         assert_eq!(
-            super::line(&testline, &revs, &revs.get(0)),
+            super::line(&testline, &revs, revs.get(0)),
             "\u{1b}[33mdeadbeef\u{1b}[0m-525-hello-\u{1b}[35mfaceb00c\u{1b}[0m"
         );
     }
@@ -92,6 +92,6 @@ mod tests {
     fn test_highlight_nothing() {
         let testline = "deadbeef-525-hello-faceb00c";
         let revs = vec![];
-        assert_eq!(super::line(&testline, &revs, &None), testline);
+        assert_eq!(super::line(&testline, &revs, None), testline);
     }
 }
