@@ -41,7 +41,6 @@ where
         let s = x.el.hash.len();
         let j = x.col + s;
 
-        // TODO: Can we make this a closure of the highlighting method instead?
         let el = if Some(x) == selected {
             x.el.hash.yellow().to_string()
         } else {
