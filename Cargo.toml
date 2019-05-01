@@ -17,7 +17,7 @@ exitcode = "1.1.2"
 failure = "0.1.1"
 nom = "4.2.3"
 itertools = "0.8.0"
-colored = "1.6.1"
+colored = "1.8.0"
 im = "10.2.0"
 human-panic = "1.0.1"
 
