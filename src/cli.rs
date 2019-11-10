@@ -1,6 +1,6 @@
 use clap::{crate_authors, crate_name, crate_version, App, AppSettings, Arg};
 
-static ABOUT: &'static str =
+static ABOUT: &str =
     "A tool for finding and selecting VCS revision hashes in your terminal.";
 
 pub fn cli() -> App<'static, 'static> {
